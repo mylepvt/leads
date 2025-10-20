@@ -23,7 +23,7 @@
       src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
   </noscript>
 
-  <!-- ✅ Styles -->
+  <!-- ✅ Styling -->
   <style>
     html, body {
       margin: 0;
@@ -36,13 +36,12 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Fixes for all mobile browsers */
     body, iframe {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100dvh; /* dynamic viewport height (mobile safe) */
+      height: 100dvh; /* Dynamic mobile viewport height */
       border: none;
       margin: 0;
       padding: 0;
@@ -55,7 +54,6 @@
       z-index: 2;
     }
 
-    /* Prevent flashing on dark background */
     @media (prefers-color-scheme: dark) {
       body { background: #0e0e14; }
     }
@@ -63,7 +61,7 @@
 </head>
 
 <body>
-  <!-- ✅ Form Embed -->
+  <!-- ✅ Zoho Form Embed -->
   <iframe
     id="zohoFormFrame"
     title="Let's Work with Myle Community 🚀"
@@ -71,11 +69,11 @@
     referrerpolicy="no-referrer-when-downgrade"
   ></iframe>
 
-  <!-- ✅ JS Logic -->
+  <!-- ✅ JavaScript -->
   <script>
     const baseURL = "https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
 
-    // --- Get fbclid (auto or from cookie) ---
+    // --- Get fbclid automatically (from URL or existing cookie)
     const params = new URLSearchParams(window.location.search);
     const fbclid = params.get('fbclid') || (document.cookie.match(/_fbc=fb\.1\.\d+\.(\w+)/) ? RegExp.$1 : null);
     let formURL = baseURL;
@@ -86,32 +84,40 @@
       document.cookie = `_fbc=${fbc}; path=/; max-age=${60*60*24*90};`;
     }
 
-    // --- Load form ---
+    // --- Load form into iframe
     const iframe = document.getElementById('zohoFormFrame');
     iframe.src = formURL;
 
-    // --- Track PageView only once ---
+    // --- Track PageView once
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track', 'PageView');
       sessionStorage.setItem('myle_pageview_fired', 'true');
     }
 
-    // --- Lead Detection ---
-    window.addEventListener('message', function(e) {
+    // --- Reliable Lead Detection via DOM Watcher
+    let leadTracked = false;
+    const checkForm = setInterval(() => {
       try {
-        const msg = (typeof e.data === 'string') ? e.data.toLowerCase() : JSON.stringify(e.data).toLowerCase();
-        if (msg.includes('successfully submitted') || msg.includes('thank') || msg.includes('submitted')) {
+        const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+        const bodyText = innerDoc.body.innerText.toLowerCase();
+
+        if (!leadTracked && bodyText.includes('thank') && bodyText.includes('submitted')) {
           fbq('track', 'Lead', {
             content_name: 'Zoho Form Submission',
             event_id: 'myle_lead_' + Date.now()
           });
-          console.log('✅ Lead event sent to Meta');
-          window.location.href = "https://leads.mylecommunity.in/thankyou.html";
+          leadTracked = true;
+          console.log('✅ Lead event triggered via DOM watcher');
+
+          // Redirect after 1.5 seconds
+          setTimeout(() => {
+            window.location.href = "https://leads.mylecommunity.in/thankyou.html";
+          }, 1500);
         }
       } catch (err) {
-        console.warn('Lead detection error:', err);
+        // Ignore cross-origin access until form loads
       }
-    });
+    }, 1000);
   </script>
 </body>
 </html>
