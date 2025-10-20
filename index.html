@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
   <title>Let's Work with Myle Community 🚀</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
 
   <!-- ✅ Meta Pixel Base Code -->
   <script>
@@ -22,6 +23,7 @@
       src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
   </noscript>
 
+  <!-- ✅ Styles -->
   <style>
     html, body {
       margin: 0;
@@ -30,24 +32,30 @@
       height: 100%;
       background: #0e0e14;
       overflow: hidden;
+      overscroll-behavior: none;
     }
-    #formWrapper iframe {
+    iframe {
       border: none;
       width: 100%;
       height: 100vh;
       display: block;
-      background: #0e0e14 !important;
+      background: #0e0e14;
     }
-    body {
-      background-color: #0e0e14 !important;
-      overflow: hidden !important;
+    #formWrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0e0e14;
     }
   </style>
 </head>
-<body>
 
-  <!-- ✅ Zoho Form Embed -->
-  <div id="formWrapper" style="position:fixed; top:0; left:0; width:100%; height:100%; overflow:hidden; background:#0e0e14;">
+<body>
+  <!-- ✅ Form Container -->
+  <div id="formWrapper">
     <iframe
       id="zohoFormFrame"
       title="Let's Work with Myle Community 🚀"
@@ -56,10 +64,11 @@
     ></iframe>
   </div>
 
+  <!-- ✅ JS Logic -->
   <script>
     const baseURL = "https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
 
-    // --- Get fbclid automatically (from Meta ads or previous visit)
+    // --- Get fbclid from Meta Ads or cookie ---
     const params = new URLSearchParams(window.location.search);
     const fbclid = params.get('fbclid') || (document.cookie.match(/_fbc=fb\.1\.\d+\.(\w+)/) ? RegExp.$1 : null);
     let formURL = baseURL;
@@ -70,29 +79,34 @@
       document.cookie = `_fbc=${fbc}; path=/; max-age=${60*60*24*90};`;
     }
 
-    // --- Load Zoho form dynamically
+    // --- Load form ---
     const iframe = document.getElementById('zohoFormFrame');
     iframe.src = formURL;
 
-    // --- Track PageView only once
+    // --- Track PageView once ---
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track', 'PageView');
       sessionStorage.setItem('myle_pageview_fired', 'true');
     }
 
-    // --- Detect submission success & send Lead event
+    // --- Detect successful submission (universal Zoho detection) ---
     window.addEventListener('message', function(e) {
-      if (e.data && e.data.includes('successfully submitted')) {
-        fbq('track', 'Lead', {
-          content_name: 'Zoho Landing Form',
-          event_id: 'myle_lead_' + Date.now()
-        });
-        console.log('✅ Lead event sent to Meta');
-        window.location.href = "https://leads.mylecommunity.in/thankyou.html";
+      try {
+        const msg = (typeof e.data === 'string') ? e.data.toLowerCase() : JSON.stringify(e.data).toLowerCase();
+        if (msg.includes('successfully submitted') || msg.includes('thank') || msg.includes('submitted')) {
+          fbq('track', 'Lead', {
+            content_name: 'Zoho Form Submission',
+            event_id: 'myle_lead_' + Date.now()
+          });
+          console.log('✅ Lead event triggered');
+          window.location.href = "https://leads.mylecommunity.in/thankyou.html";
+        }
+      } catch (err) {
+        console.warn('Lead detection error:', err);
       }
     });
 
-    // --- Safety fallback: If iframe navigates to thank-you
+    // --- Backup redirect if iframe URL changes ---
     iframe.addEventListener('load', () => {
       try {
         const currentSrc = iframe.contentWindow.location.href;
@@ -102,6 +116,5 @@
       } catch {}
     });
   </script>
-
 </body>
 </html>
