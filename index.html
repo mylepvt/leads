@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Let's Work with Myle Community 🚀</title>
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
 
@@ -33,42 +33,49 @@
       background: #0e0e14;
       overflow: hidden;
       overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
     }
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100vh;
-      display: block;
-      background: #0e0e14;
-    }
-    #formWrapper {
+
+    /* Fixes for all mobile browsers */
+    body, iframe {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
-      overflow: hidden;
+      height: 100dvh; /* dynamic viewport height (mobile safe) */
+      border: none;
+      margin: 0;
+      padding: 0;
+      display: block;
       background: #0e0e14;
+    }
+
+    iframe {
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    /* Prevent flashing on dark background */
+    @media (prefers-color-scheme: dark) {
+      body { background: #0e0e14; }
     }
   </style>
 </head>
 
 <body>
-  <!-- ✅ Form Container -->
-  <div id="formWrapper">
-    <iframe
-      id="zohoFormFrame"
-      title="Let's Work with Myle Community 🚀"
-      sandbox="allow-scripts allow-forms allow-same-origin"
-      referrerpolicy="no-referrer-when-downgrade"
-    ></iframe>
-  </div>
+  <!-- ✅ Form Embed -->
+  <iframe
+    id="zohoFormFrame"
+    title="Let's Work with Myle Community 🚀"
+    sandbox="allow-scripts allow-forms allow-same-origin"
+    referrerpolicy="no-referrer-when-downgrade"
+  ></iframe>
 
   <!-- ✅ JS Logic -->
   <script>
     const baseURL = "https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
 
-    // --- Get fbclid from Meta Ads or cookie ---
+    // --- Get fbclid (auto or from cookie) ---
     const params = new URLSearchParams(window.location.search);
     const fbclid = params.get('fbclid') || (document.cookie.match(/_fbc=fb\.1\.\d+\.(\w+)/) ? RegExp.$1 : null);
     let formURL = baseURL;
@@ -83,13 +90,13 @@
     const iframe = document.getElementById('zohoFormFrame');
     iframe.src = formURL;
 
-    // --- Track PageView once ---
+    // --- Track PageView only once ---
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track', 'PageView');
       sessionStorage.setItem('myle_pageview_fired', 'true');
     }
 
-    // --- Detect successful submission (universal Zoho detection) ---
+    // --- Lead Detection ---
     window.addEventListener('message', function(e) {
       try {
         const msg = (typeof e.data === 'string') ? e.data.toLowerCase() : JSON.stringify(e.data).toLowerCase();
@@ -98,22 +105,12 @@
             content_name: 'Zoho Form Submission',
             event_id: 'myle_lead_' + Date.now()
           });
-          console.log('✅ Lead event triggered');
+          console.log('✅ Lead event sent to Meta');
           window.location.href = "https://leads.mylecommunity.in/thankyou.html";
         }
       } catch (err) {
         console.warn('Lead detection error:', err);
       }
-    });
-
-    // --- Backup redirect if iframe URL changes ---
-    iframe.addEventListener('load', () => {
-      try {
-        const currentSrc = iframe.contentWindow.location.href;
-        if (currentSrc.includes("thankyou")) {
-          window.location.href = "https://leads.mylecommunity.in/thankyou.html";
-        }
-      } catch {}
     });
   </script>
 </body>
