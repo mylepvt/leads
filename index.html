@@ -4,120 +4,126 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Let's Work with Myle Community 🚀</title>
+
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
 
-  <!-- ✅ Meta Pixel Base Code -->
+  <!-- Performance hints -->
+  <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
+  <link rel="preconnect" href="https://www.facebook.com" crossorigin>
+  <link rel="preconnect" href="https://forms.mylecommunity.in" crossorigin>
+
+  <!-- Meta Pixel -->
   <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+    (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
     fbq('init', '1357484016013958');
   </script>
   <noscript>
     <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
+         src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
   </noscript>
 
-  <!-- ✅ Styling -->
   <style>
+    :root { color-scheme: dark; }
     html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #0e0e14;
-      overflow: hidden;
-      overscroll-behavior: none;
-      -webkit-overflow-scrolling: touch;
+      margin:0; padding:0; width:100%; height:100%;
+      background:#0e0e14; overflow:hidden; overscroll-behavior:none;
+      -webkit-overflow-scrolling:touch;
     }
-
+    /* Full-viewport, no borders/scrollbars */
     body, iframe {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100dvh; /* Dynamic mobile viewport height */
-      border: none;
-      margin: 0;
-      padding: 0;
-      display: block;
-      background: #0e0e14;
+      position:fixed; inset:0; width:100%; height:100dvh;
+      border:0; display:block; background:#0e0e14;
     }
-
-    iframe {
-      overflow: hidden;
-      z-index: 2;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body { background: #0e0e14; }
-    }
+    iframe { z-index:1; }
   </style>
 </head>
-
 <body>
-  <!-- ✅ Zoho Form Embed -->
-  <iframe
-    id="zohoFormFrame"
-    title="Let's Work with Myle Community 🚀"
-    sandbox="allow-scripts allow-forms allow-same-origin"
-    referrerpolicy="no-referrer-when-downgrade"
-  ></iframe>
 
-  <!-- ✅ JavaScript -->
+  <!-- Zoho Form -->
+  <iframe id="zohoFormFrame"
+          title="Let's Work with Myle Community 🚀"
+          sandbox="allow-scripts allow-forms allow-same-origin"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+
   <script>
-    const baseURL = "https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
+    // ---------- Settings ----------
+    const PIXEL_ID  = '1357484016013958';
+    const FORM_BASE = 'https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
+    const THANK_URL = '/thankyou.html';
 
-    // --- Get fbclid automatically (from URL or existing cookie)
-    const params = new URLSearchParams(window.location.search);
-    const fbclid = params.get('fbclid') || (document.cookie.match(/_fbc=fb\.1\.\d+\.(\w+)/) ? RegExp.$1 : null);
-    let formURL = baseURL;
+    // ---------- Helpers ----------
+    const qs = new URLSearchParams(location.search);
+    const fbclidFromUrl = qs.get('fbclid');
 
-    if (fbclid) {
-      formURL += (baseURL.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
-      const fbc = `fb.1.${Date.now()}.${fbclid}`;
-      document.cookie = `_fbc=${fbc}; path=/; max-age=${60*60*24*90};`;
+    // Read existing _fbc cookie (if any)
+    const fbcCookie = (document.cookie.match(/(?:^|;)\s*_fbc=([^;]+)/) || [])[1];
+
+    // If URL has fbclid, set/refresh the _fbc cookie per spec
+    if (fbclidFromUrl) {
+      const fbcValue = `fb.1.${Date.now()}.${fbclidFromUrl}`;
+      document.cookie = `_fbc=${fbcValue}; path=/; max-age=${60*60*24*90}; samesite=Lax`;
     }
 
-    // --- Load form into iframe
-    const iframe = document.getElementById('zohoFormFrame');
-    iframe.src = formURL;
+    // Build Zoho URL (append fbclid so it lands in the Zoho submission/referrer)
+    let formUrl = FORM_BASE;
+    if (fbclidFromUrl) formUrl += (FORM_BASE.includes('?') ? '&' : '?') + 'fbclid=' + encodeURIComponent(fbclidFromUrl);
+    document.getElementById('zohoFormFrame').src = formUrl;
 
-    // --- Track PageView once
-    if (!sessionStorage.getItem('myle_pageview_fired')) {
+    // PageView (once per session)
+    if (!sessionStorage.getItem('myle_pv_fired')) {
       fbq('track', 'PageView');
-      sessionStorage.setItem('myle_pageview_fired', 'true');
+      sessionStorage.setItem('myle_pv_fired', '1');
     }
 
-    // --- Reliable Lead Detection via DOM Watcher
-    let leadTracked = false;
-    const checkForm = setInterval(() => {
+    // ---------- Lead detection & redirect ----------
+    // We will NOT fire Lead here. We only redirect to thankyou.
+    // Lead will fire on thankyou.html (ensures fbc is present & pixel is ready).
+
+    // 1) Preferred: listen for Zoho postMessage text
+    let redirected = false;
+    window.addEventListener('message', (e) => {
       try {
-        const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-        const bodyText = innerDoc.body.innerText.toLowerCase();
-
-        if (!leadTracked && bodyText.includes('thank') && bodyText.includes('submitted')) {
-          fbq('track', 'Lead', {
-            content_name: 'Zoho Form Submission',
-            event_id: 'myle_lead_' + Date.now()
-          });
-          leadTracked = true;
-          console.log('✅ Lead event triggered via DOM watcher');
-
-          // Redirect after 1.5 seconds
-          setTimeout(() => {
-            window.location.href = "https://leads.mylecommunity.in/thankyou.html";
-          }, 1500);
+        if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) {
+          goThankYou();
         }
-      } catch (err) {
-        // Ignore cross-origin access until form loads
-      }
-    }, 1000);
+      } catch(_) {}
+    });
+
+    // 2) Fallback DOM watcher (in case postMessage format changes)
+    const frm = document.getElementById('zohoFormFrame');
+    const poll = setInterval(() => {
+      if (redirected) { clearInterval(poll); return; }
+      try {
+        const doc = frm.contentDocument || frm.contentWindow.document;
+        const txt = (doc && doc.body && doc.body.innerText || '').toLowerCase();
+        if (txt.includes('thank') && txt.includes('submitted')) {
+          goThankYou();
+        }
+      } catch(_) { /* cross-origin while loading */ }
+    }, 800);
+
+    function goThankYou() {
+      if (redirected) return;
+      redirected = true;
+
+      // Generate a client event_id for future server dedup (store & pass through)
+      const eid = 'myle_lead_' + Date.now();
+      sessionStorage.setItem('myle_lead_eid', eid);
+
+      // Keep any fbclid (helps debug and test)
+      const to = new URL(THANK_URL, location.origin);
+      const fbclid = fbclidFromUrl || (fbcCookie ? (fbcCookie.split('.').pop()) : '');
+      if (fbclid) to.searchParams.set('fbclid', fbclid);
+      to.searchParams.set('e', eid);
+
+      location.href = to.toString();
+    }
   </script>
 </body>
 </html>
