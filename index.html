@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Let's Work with Myle Community 🚀</title>
+
+  <!-- ✅ Meta Pixel Base Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1357484016013958');
+  </script>
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
+  </noscript>
+
+  <style>
+    body {
+      background: #0e0e14;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      margin: 0;
+    }
+    iframe {
+      width: 100%;
+      max-width: 900px;
+      height: 950px;
+      border: none;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+    h1 {
+      font-weight: 600;
+      margin-top: 40px;
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+  <h1>Let's Work with Myle Community 🚀</h1>
+
+  <!-- ✅ Zoho Form Embed -->
+  <div id="zoho-form"></div>
+
+  <script>
+    // --- Build form iframe with fbclid passthrough ---
+    const formBase = "https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
+    const params = new URLSearchParams(window.location.search);
+    const fbclid = params.get('fbclid');
+    let formURL = formBase;
+    if (fbclid) formURL += (formBase.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
+
+    const iframe = document.createElement('iframe');
+    iframe.src = formURL;
+    iframe.title = "Let's Work with Myle Community";
+    document.getElementById('zoho-form').appendChild(iframe);
+
+    // --- fbclid → fbc cookie for Meta matching ---
+    if (fbclid) {
+      const fbcValue = `fb.1.${Date.now()}.${fbclid}`;
+      document.cookie = `_fbc=${fbcValue}; path=/; max-age=${60*60*24*90};`;
+    }
+
+    // --- Fire PageView only once per session ---
+    if (!sessionStorage.getItem('myle_pageview_fired')) {
+      fbq('track', 'PageView');
+      sessionStorage.setItem('myle_pageview_fired', 'true');
+    }
+
+    // --- Listen for Zoho Form submission ---
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.includes('successfully submitted')) {
+        fbq('track', 'Lead', {
+          content_name: 'Zoho Landing Form',
+          event_id: 'myle_lead_' + Date.now()
+        });
+        console.log('✅ Lead event fired to Meta');
+      }
+    });
+  </script>
+</body>
+</html>
