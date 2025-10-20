@@ -23,69 +23,60 @@
   </noscript>
 
   <style>
-    body {
-      background: #0e0e14;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      text-align: center;
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #0e0e14;
+      overflow: hidden;
     }
     iframe {
-      width: 100%;
-      max-width: 900px;
-      height: 950px;
       border: none;
-      margin-top: 20px;
-      border-radius: 8px;
-    }
-    h1 {
-      font-weight: 600;
-      margin-top: 40px;
-      color: #ffd700;
+      width: 100%;
+      height: 100vh;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <h1>Let's Work with Myle Community 🚀</h1>
 
   <!-- ✅ Zoho Form Embed -->
-  <div id="zoho-form"></div>
+  <iframe id="zohoFormFrame" title="Let's Work with Myle Community 🚀"></iframe>
 
   <script>
-    // --- Build form iframe with fbclid passthrough ---
-    const formBase = "https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
+    // ---- Build Zoho Form URL with fbclid ----
+    const baseURL = "https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
     const params = new URLSearchParams(window.location.search);
     const fbclid = params.get('fbclid');
-    let formURL = formBase;
-    if (fbclid) formURL += (formBase.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
+    let formURL = baseURL;
+    if (fbclid) formURL += (baseURL.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
 
-    const iframe = document.createElement('iframe');
-    iframe.src = formURL;
-    iframe.title = "Let's Work with Myle Community";
-    document.getElementById('zoho-form').appendChild(iframe);
+    document.getElementById('zohoFormFrame').src = formURL;
 
-    // --- fbclid → fbc cookie for Meta matching ---
+    // ---- Store fbc cookie for Meta advanced matching ----
     if (fbclid) {
-      const fbcValue = `fb.1.${Date.now()}.${fbclid}`;
-      document.cookie = `_fbc=${fbcValue}; path=/; max-age=${60*60*24*90};`;
+      const fbc = `fb.1.${Date.now()}.${fbclid}`;
+      document.cookie = `_fbc=${fbc}; path=/; max-age=${60*60*24*90};`;
     }
 
-    // --- Fire PageView only once per session ---
+    // ---- Track PageView only once ----
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track', 'PageView');
       sessionStorage.setItem('myle_pageview_fired', 'true');
     }
 
-    // --- Listen for Zoho Form submission ---
+    // ---- Detect Zoho Form Submission Event ----
     window.addEventListener('message', function(e) {
       if (e.data && e.data.includes('successfully submitted')) {
         fbq('track', 'Lead', {
           content_name: 'Zoho Landing Form',
           event_id: 'myle_lead_' + Date.now()
         });
-        console.log('✅ Lead event fired to Meta');
+        console.log('✅ Lead event sent to Meta');
       }
     });
   </script>
+
 </body>
 </html>
