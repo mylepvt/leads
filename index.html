@@ -77,6 +77,7 @@
     const existingFbc = getCookie('_fbc');
     const existingFbp = getCookie('_fbp');
 
+    // --- Generate or use existing cookies ---
     let fbc = existingFbc;
     if (fbclid) {
       fbc = `fb.1.${Date.now()}.${fbclid}`;
@@ -89,49 +90,58 @@
       setCookie('_fbp', fbp);
     }
 
+    // --- Load Zoho Form ---
     let formURL = FORM_BASE;
     if (fbclid) formURL += (FORM_BASE.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
     document.getElementById('zohoFormFrame').src = formURL;
 
+    // --- Fire PageView once ---
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track', 'PageView', { fbc, fbp });
       sessionStorage.setItem('myle_pageview_fired', '1');
     }
 
+    // --- Handle form submission success ---
     let redirected = false;
     function goThankYou() {
       if (redirected) return;
       redirected = true;
-      const eid = 'myle_lead_' + Date.now();
+
+      const eid = 'MYLE-' + Math.floor(Date.now() / 1000);
       sessionStorage.setItem('myle_lead_eid', eid);
 
-      // ✅ Fire Lead before redirect (for consistency)
+      // Pixel "Lead"
       fbq('track', 'Lead', { fbc, fbp, event_id: eid });
 
-      // ✅ Send to CAPI Worker endpoint on Cloudflare
+      // Server-Side (Worker.js)
       fetch('https://api.mylecommunity.in/fb-capi', {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           event_name: 'Lead',
           event_id: eid,
           event_source_url: window.location.href,
-          fbc, fbp,
+          fbc,
+          fbp,
+          client_ip_address: '', // Optional fallback, Zoho sends real IP
           action_source: 'website',
-          event_time: Math.floor(Date.now()/1000)
+          event_time: Math.floor(Date.now() / 1000)
         })
-      }).catch(err => console.warn('CAPI failed', err));
+      }).catch(err => console.warn('⚠️ CAPI failed', err));
 
+      // Redirect
       const target = new URL(THANK_URL, location.origin);
       if (fbclid) target.searchParams.set('fbclid', fbclid);
       target.searchParams.set('e', eid);
       location.href = target.toString();
     }
 
+    // Listen for Zoho success message
     window.addEventListener('message', e => {
       if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
     });
 
+    // Fallback: detect "thank you" text in iframe
     const iframe = document.getElementById('zohoFormFrame');
     const watcher = setInterval(() => {
       if (redirected) { clearInterval(watcher); return; }
