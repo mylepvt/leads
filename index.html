@@ -13,19 +13,21 @@
   <link rel="preconnect" href="https://www.facebook.com" crossorigin>
   <link rel="preconnect" href="https://forms.mylecommunity.in" crossorigin>
 
-  <!-- Meta Pixel -->
+  <!-- Meta Pixel Base -->
   <script>
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-    (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-
+    !function(f,b,e,v,n,t,s){
+      if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)
+    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '1357484016013958');
   </script>
   <noscript>
     <img height="1" width="1" style="display:none"
-         src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
+      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
   </noscript>
 
   <style>
@@ -35,7 +37,6 @@
       background:#0e0e14; overflow:hidden; overscroll-behavior:none;
       -webkit-overflow-scrolling:touch;
     }
-    /* Full-viewport, no borders/scrollbars */
     body, iframe {
       position:fixed; inset:0; width:100%; height:100dvh;
       border:0; display:block; background:#0e0e14;
@@ -52,78 +53,83 @@
           referrerpolicy="no-referrer-when-downgrade"></iframe>
 
   <script>
-    // ---------- Settings ----------
-    const PIXEL_ID  = '1357484016013958';
+    // --- Settings ---
+    const PIXEL_ID = '1357484016013958';
     const FORM_BASE = 'https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
     const THANK_URL = '/thankyou.html';
 
-    // ---------- Helpers ----------
-    const qs = new URLSearchParams(location.search);
-    const fbclidFromUrl = qs.get('fbclid');
-
-    // Read existing _fbc cookie (if any)
-    const fbcCookie = (document.cookie.match(/(?:^|;)\s*_fbc=([^;]+)/) || [])[1];
-
-    // If URL has fbclid, set/refresh the _fbc cookie per spec
-    if (fbclidFromUrl) {
-      const fbcValue = `fb.1.${Date.now()}.${fbclidFromUrl}`;
-      document.cookie = `_fbc=${fbcValue}; path=/; max-age=${60*60*24*90}; samesite=Lax`;
+    // --- Cookie Helpers ---
+    function setCookie(name, value) {
+      document.cookie = `${name}=${value}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
+    }
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+      return match ? match[1] : '';
     }
 
-    // Build Zoho URL (append fbclid so it lands in the Zoho submission/referrer)
-    let formUrl = FORM_BASE;
-    if (fbclidFromUrl) formUrl += (FORM_BASE.includes('?') ? '&' : '?') + 'fbclid=' + encodeURIComponent(fbclidFromUrl);
-    document.getElementById('zohoFormFrame').src = formUrl;
+    // --- fbc/fbp Logic ---
+    const params = new URLSearchParams(window.location.search);
+    const fbclid = params.get('fbclid');
+    const existingFbc = getCookie('_fbc');
+    const existingFbp = getCookie('_fbp');
 
-    // PageView (once per session)
-    if (!sessionStorage.getItem('myle_pv_fired')) {
-      fbq('track', 'PageView');
-      sessionStorage.setItem('myle_pv_fired', '1');
+    // ✅ Generate or refresh fbc if fbclid found
+    let fbc = existingFbc;
+    if (fbclid) {
+      fbc = `fb.1.${Date.now()}.${fbclid}`;
+      setCookie('_fbc', fbc);
     }
 
-    // ---------- Lead detection & redirect ----------
-    // We will NOT fire Lead here. We only redirect to thankyou.
-    // Lead will fire on thankyou.html (ensures fbc is present & pixel is ready).
+    // ✅ Ensure fbp exists
+    let fbp = existingFbp;
+    if (!fbp) {
+      fbp = `fb.1.${Date.now()}.${Math.random().toString(36).substring(2,12)}`;
+      setCookie('_fbp', fbp);
+    }
 
-    // 1) Preferred: listen for Zoho postMessage text
+    // --- Embed Zoho Form ---
+    let formURL = FORM_BASE;
+    if (fbclid) formURL += (FORM_BASE.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
+    document.getElementById('zohoFormFrame').src = formURL;
+
+    // --- Track PageView once per session ---
+    if (!sessionStorage.getItem('myle_pageview_fired')) {
+      fbq('track', 'PageView', { fbc, fbp });
+      sessionStorage.setItem('myle_pageview_fired', '1');
+    }
+
+    // --- Lead Detection via postMessage + fallback watcher ---
     let redirected = false;
-    window.addEventListener('message', (e) => {
-      try {
-        if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) {
-          goThankYou();
-        }
-      } catch(_) {}
-    });
-
-    // 2) Fallback DOM watcher (in case postMessage format changes)
-    const frm = document.getElementById('zohoFormFrame');
-    const poll = setInterval(() => {
-      if (redirected) { clearInterval(poll); return; }
-      try {
-        const doc = frm.contentDocument || frm.contentWindow.document;
-        const txt = (doc && doc.body && doc.body.innerText || '').toLowerCase();
-        if (txt.includes('thank') && txt.includes('submitted')) {
-          goThankYou();
-        }
-      } catch(_) { /* cross-origin while loading */ }
-    }, 800);
-
     function goThankYou() {
       if (redirected) return;
       redirected = true;
-
-      // Generate a client event_id for future server dedup (store & pass through)
       const eid = 'myle_lead_' + Date.now();
       sessionStorage.setItem('myle_lead_eid', eid);
-
-      // Keep any fbclid (helps debug and test)
-      const to = new URL(THANK_URL, location.origin);
-      const fbclid = fbclidFromUrl || (fbcCookie ? (fbcCookie.split('.').pop()) : '');
-      if (fbclid) to.searchParams.set('fbclid', fbclid);
-      to.searchParams.set('e', eid);
-
-      location.href = to.toString();
+      const target = new URL(THANK_URL, location.origin);
+      if (fbclid) target.searchParams.set('fbclid', fbclid);
+      target.searchParams.set('e', eid);
+      location.href = target.toString();
     }
+
+    // 1️⃣ Preferred postMessage listener
+    window.addEventListener('message', e => {
+      if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) {
+        goThankYou();
+      }
+    });
+
+    // 2️⃣ Fallback DOM watcher
+    const iframe = document.getElementById('zohoFormFrame');
+    const watcher = setInterval(() => {
+      if (redirected) { clearInterval(watcher); return; }
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const text = (doc.body && doc.body.innerText || '').toLowerCase();
+        if (text.includes('thank') && text.includes('submitted')) {
+          goThankYou();
+        }
+      } catch {}
+    }, 900);
   </script>
 </body>
 </html>
