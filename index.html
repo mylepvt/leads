@@ -8,12 +8,18 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
 
-  <!-- Performance hints -->
+  <!-- Privacy & Security -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+
+  <!-- Performance -->
+  <link rel="dns-prefetch" href="https://forms.zohopublic.in">
+  <link rel="dns-prefetch" href="https://connect.facebook.net">
   <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
   <link rel="preconnect" href="https://www.facebook.com" crossorigin>
-  <link rel="preconnect" href="https://forms.mylecommunity.in" crossorigin>
+  <link rel="preconnect" href="https://forms.zohopublic.in" crossorigin>
 
-  <!-- Meta Pixel Base -->
+  <!-- Meta Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -46,19 +52,18 @@
 </head>
 <body>
 
-  <!-- Zoho Form -->
+  <!-- Zoho Form Embed -->
   <iframe id="zohoFormFrame"
           title="Let's Work with Myle Community 🚀"
           sandbox="allow-scripts allow-forms allow-same-origin"
           referrerpolicy="no-referrer-when-downgrade"></iframe>
 
   <script>
-    // --- Settings ---
     const PIXEL_ID = '1357484016013958';
     const FORM_BASE = 'https://forms.zohopublic.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
     const THANK_URL = '/thankyou.html';
 
-    // --- Cookie Helpers ---
+    // --- Cookie helpers ---
     function setCookie(name, value) {
       document.cookie = `${name}=${value}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
     }
@@ -67,67 +72,73 @@
       return match ? match[1] : '';
     }
 
-    // --- fbc/fbp Logic ---
     const params = new URLSearchParams(window.location.search);
     const fbclid = params.get('fbclid');
     const existingFbc = getCookie('_fbc');
     const existingFbp = getCookie('_fbp');
 
-    // ✅ Generate or refresh fbc if fbclid found
     let fbc = existingFbc;
     if (fbclid) {
       fbc = `fb.1.${Date.now()}.${fbclid}`;
       setCookie('_fbc', fbc);
     }
 
-    // ✅ Ensure fbp exists
     let fbp = existingFbp;
     if (!fbp) {
       fbp = `fb.1.${Date.now()}.${Math.random().toString(36).substring(2,12)}`;
       setCookie('_fbp', fbp);
     }
 
-    // --- Embed Zoho Form ---
     let formURL = FORM_BASE;
     if (fbclid) formURL += (FORM_BASE.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // --- Track PageView once per session ---
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track', 'PageView', { fbc, fbp });
       sessionStorage.setItem('myle_pageview_fired', '1');
     }
 
-    // --- Lead Detection via postMessage + fallback watcher ---
     let redirected = false;
     function goThankYou() {
       if (redirected) return;
       redirected = true;
       const eid = 'myle_lead_' + Date.now();
       sessionStorage.setItem('myle_lead_eid', eid);
+
+      // ✅ Fire Lead before redirect (for consistency)
+      fbq('track', 'Lead', { fbc, fbp, event_id: eid });
+
+      // ✅ Send to CAPI Worker endpoint on Cloudflare
+      fetch('https://api.mylecommunity.in/fb-capi', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          event_name: 'Lead',
+          event_id: eid,
+          event_source_url: window.location.href,
+          fbc, fbp,
+          action_source: 'website',
+          event_time: Math.floor(Date.now()/1000)
+        })
+      }).catch(err => console.warn('CAPI failed', err));
+
       const target = new URL(THANK_URL, location.origin);
       if (fbclid) target.searchParams.set('fbclid', fbclid);
       target.searchParams.set('e', eid);
       location.href = target.toString();
     }
 
-    // 1️⃣ Preferred postMessage listener
     window.addEventListener('message', e => {
-      if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) {
-        goThankYou();
-      }
+      if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
     });
 
-    // 2️⃣ Fallback DOM watcher
     const iframe = document.getElementById('zohoFormFrame');
     const watcher = setInterval(() => {
       if (redirected) { clearInterval(watcher); return; }
       try {
         const doc = iframe.contentDocument || iframe.contentWindow.document;
         const text = (doc.body && doc.body.innerText || '').toLowerCase();
-        if (text.includes('thank') && text.includes('submitted')) {
-          goThankYou();
-        }
+        if (text.includes('thank') && text.includes('submitted')) goThankYou();
       } catch {}
     }, 900);
   </script>
