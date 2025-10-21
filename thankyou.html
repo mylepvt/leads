@@ -8,25 +8,32 @@
 
   <!-- Meta Pixel -->
   <script>
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-    (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    !function(f,b,e,v,n,t,s){
+      if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)
+    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '1357484016013958');
   </script>
   <noscript>
     <img height="1" width="1" style="display:none"
-         src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
+      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
   </noscript>
 
   <style>
     :root { color-scheme: dark; }
-    body{
-      margin:0; background:#0e0e14; color:#fff; font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
-      min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:24px;
+    body {
+      margin:0; background:#0e0e14; color:#fff;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      min-height:100dvh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; text-align:center; padding:24px;
     }
-    .check{width:84px;height:84px;border-radius:999px;background:#4caf50;display:flex;align-items:center;justify-content:center;margin-bottom:16px;animation:pop .35s ease;}
+    .check{width:84px;height:84px;border-radius:50%;background:#4caf50;
+      display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+      animation:pop .35s ease;}
     .check svg{width:44px;height:44px;stroke:#fff;stroke-width:4;fill:none;}
     h1{margin:6px 0 8px;font-size:28px;}
     p{opacity:.85;max-width:520px}
@@ -41,30 +48,28 @@
   <p>Your form has been submitted successfully 🎉</p>
 
   <script>
-    // Fire Lead ONCE here with fbc + event_id
     window.addEventListener('load', () => {
       const url = new URL(location.href);
       const eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid') || ('myle_lead_'+Date.now());
+      const fbc = (document.cookie.match(/_fbc=([^;]+)/) || [])[1] || '';
+      const fbp = (document.cookie.match(/_fbp=([^;]+)/) || [])[1] || '';
 
-      const fbcMatch = document.cookie.match(/(?:^|;)\s*_fbc=([^;]+)/);
-      const fbc = fbcMatch ? fbcMatch[1] : '';
-
-      // PageView (optional)
+      // PageView (optional, keeps session continuity)
       if (!sessionStorage.getItem('myle_ty_pv')) {
-        fbq('track', 'PageView');
+        fbq('track', 'PageView', { fbc, fbp });
         sessionStorage.setItem('myle_ty_pv','1');
       }
 
-      // Lead with fbc + event_id (helps match quality and future dedup)
+      // Fire Lead event with identifiers
       setTimeout(() => {
         fbq('track', 'Lead', {
           content_name: 'Zoho Form Lead | Thank You',
           event_id: eid,
-          fbc: fbc
+          fbc,
+          fbp
         });
-        // clean up so we don't re-use on refresh
         sessionStorage.removeItem('myle_lead_eid');
-        console.log('🎯 Lead sent with', {event_id:eid, fbc});
+        console.log('🎯 Lead sent with', {event_id:eid, fbc, fbp});
       }, 700);
     });
   </script>
