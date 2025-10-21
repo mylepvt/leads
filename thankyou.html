@@ -45,32 +45,53 @@
     <svg viewBox="0 0 52 52"><path d="M14 27l7 7 17-17"/></svg>
   </div>
   <h1>Thank You!</h1>
-  <p>Your form has been submitted successfully 🎉</p>
+  <p>Your form has been submitted successfully 🎉 You will get a call from MYLE Community within 24 hours 📞</p>
 
   <script>
     window.addEventListener('load', () => {
       const url = new URL(location.href);
-      const eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid') || ('myle_lead_'+Date.now());
+      const eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid');
       const fbc = (document.cookie.match(/_fbc=([^;]+)/) || [])[1] || '';
       const fbp = (document.cookie.match(/_fbp=([^;]+)/) || [])[1] || '';
 
-      // PageView (optional, keeps session continuity)
+      // 🔹 Always track PageView for continuity (not a Lead)
       if (!sessionStorage.getItem('myle_ty_pv')) {
         fbq('track', 'PageView', { fbc, fbp });
-        sessionStorage.setItem('myle_ty_pv','1');
+        sessionStorage.setItem('myle_ty_pv', '1');
       }
 
-      // Fire Lead event with identifiers
-      setTimeout(() => {
-        fbq('track', 'Lead', {
-          content_name: 'Zoho Form Lead | Thank You',
+      // 🔹 Fire Lead only if a real submission was tracked
+      if (!eid) {
+        console.log('⚠️ No event_id found — skipping Lead (user didn’t submit form).');
+        return;
+      }
+
+      // Prevent duplicate re-firing
+      if (sessionStorage.getItem('myle_lead_fired')) {
+        console.log('⚙️ Lead event already sent — skipping duplicate.');
+        return;
+      }
+
+      console.log('🎯 Confirmed Lead redirect — syncing with CAPI...', eid);
+
+      // Retry server-side only (silent backup)
+      fetch('https://api.mylecommunity.in/fb-capi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_name: 'Lead',
           event_id: eid,
+          event_source_url: window.location.href,
           fbc,
-          fbp
-        });
-        sessionStorage.removeItem('myle_lead_eid');
-        console.log('🎯 Lead sent with', {event_id:eid, fbc, fbp});
-      }, 700);
+          fbp,
+          action_source: 'website',
+          event_time: Math.floor(Date.now() / 1000)
+        })
+      }).catch(err => console.warn('CAPI retry failed:', err));
+
+      // Mark as completed
+      sessionStorage.setItem('myle_lead_fired', '1');
+      sessionStorage.removeItem('myle_lead_eid');
     });
   </script>
 </body>
