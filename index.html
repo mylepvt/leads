@@ -90,6 +90,17 @@
       setCookie('_fbp', fbp);
     }
 
+    // Ensure _fbc and _fbp cookies always exist
+if (!document.cookie.includes('_fbp')) {
+  const fbp = `fb.1.${Date.now()}.${Math.random().toString(36).substring(2,12)}`;
+  document.cookie = `_fbp=${fbp}; path=/; domain=.mylecommunity.in; SameSite=None; Secure`;
+}
+if (window.location.search.includes('fbclid=')) {
+  const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+  const fbc = `fb.1.${Date.now()}.${fbclid}`;
+  document.cookie = `_fbc=${fbc}; path=/; domain=.mylecommunity.in; SameSite=None; Secure`;
+}
+    
     // --- Load Zoho Form ---
     let formURL = FORM_BASE;
     if (fbclid) formURL += (FORM_BASE.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
