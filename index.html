@@ -56,38 +56,39 @@
     const FORM_BASE = 'https://forms.zohopublic.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
     const THANK_URL = '/thankyou.html';
 
-    // Helper functions
+    // Cookie helpers
     const setCookie = (n,v) =>
       document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
 
     const params = new URLSearchParams(location.search);
-    const fbclid = params.get('fbclid');
+    const fbclidParam = params.get('fbclid');
+
+    // If fbclid exists in URL, store it persistently
+    if (fbclidParam) setCookie('fbclid', fbclidParam);
+    const fbclid = fbclidParam || getCookie('fbclid');
+
     let fbc = getCookie('_fbc');
     let fbp = getCookie('_fbp');
 
-    // Always ensure stable cookies (set once only)
+    // Generate fbp if missing
     if (!fbp) {
-      fbp = `fb.1.${Date.now()}.${Math.random().toString(36).substring(2,12)}`;
+      fbp = `fb.1.${Math.floor(Date.now()/1000)}.${Math.random().toString(36).substring(2,12)}`;
       setCookie('_fbp', fbp);
     }
+
+    // Generate fbc if missing
     if (fbclid && !fbc) {
-      fbc = `fb.1.${Date.now()}.${fbclid}`;
+      fbc = `fb.1.${Math.floor(Date.now()/1000)}.${fbclid}`;
       setCookie('_fbc', fbc);
     }
 
-    // Ensure cookies exist before using in formURL
-    if (!fbp) {
-      fbp = `fb.1.${Date.now()}.${Math.random().toString(36).substring(2,12)}`;
-      setCookie('_fbp', fbp);
-    }
-
-    // --- Load Zoho Form ---
-    let formURL = FORM_BASE + `?fbp=${fbp}`;  // Always send _fbp to Zoho
-    if (fbclid) formURL += `&fbclid=${fbclid}`; // Add fbclid if present
+    // Load Zoho Form with fbclid + fbp
+    let formURL = `${FORM_BASE}?fbp=${fbp}`;
+    if (fbclid) formURL += `&fbclid=${fbclid}`;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // Fire PageView once
+    // Fire PageView
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track','PageView',{fbc,fbp});
       sessionStorage.setItem('myle_pageview_fired','1');
@@ -101,13 +102,14 @@
 
       fbq('track','Lead',{fbc,fbp,event_id:eid});
 
-      // Capture client IP (best-effort)
+      // Capture IP (optional)
       let client_ip = '';
       try {
-        const ipRes = await fetch('https://api.ipify.org?format=json');
-        client_ip = (await ipRes.json()).ip || '';
+        const res = await fetch('https://api.ipify.org?format=json');
+        client_ip = (await res.json()).ip || '';
       } catch {}
 
+      // Send to CAPI
       fetch('https://api.mylecommunity.in/fb-capi',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
