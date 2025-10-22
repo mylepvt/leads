@@ -76,9 +76,15 @@
       setCookie('_fbc', fbc);
     }
 
-    // Load Zoho form
-    let formURL = FORM_BASE;
-    if (fbclid) formURL += (FORM_BASE.includes('?') ? '&' : '?') + 'fbclid=' + fbclid;
+    // Ensure cookies exist before using in formURL
+    if (!fbp) {
+      fbp = `fb.1.${Date.now()}.${Math.random().toString(36).substring(2,12)}`;
+      setCookie('_fbp', fbp);
+    }
+
+    // --- Load Zoho Form ---
+    let formURL = FORM_BASE + `?fbp=${fbp}`;  // Always send _fbp to Zoho
+    if (fbclid) formURL += `&fbclid=${fbclid}`; // Add fbclid if present
     document.getElementById('zohoFormFrame').src = formURL;
 
     // Fire PageView once
