@@ -100,7 +100,11 @@
       const eid = 'MYLE-' + Math.floor(Date.now()/1000);
       sessionStorage.setItem('myle_lead_eid',eid);
 
+    // Prevent double Lead events
+    if (!sessionStorage.getItem('lead_fired')) {
       fbq('track','Lead',{fbc,fbp,event_id:eid});
+      sessionStorage.setItem('lead_fired','1');
+    }
 
       // Capture IP (optional)
       let client_ip = '';
