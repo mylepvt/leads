@@ -6,7 +6,7 @@
   <title>Thank You | Myle Community</title>
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
 
-  <!-- Meta Pixel -->
+  <!-- ✅ Meta Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -23,6 +23,7 @@
       src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
   </noscript>
 
+  <!-- ✅ Styles -->
   <style>
     :root { color-scheme: dark; }
     body {
@@ -40,6 +41,7 @@
     @keyframes pop{from{transform:scale(.85);opacity:.5}to{transform:scale(1);opacity:1}}
   </style>
 </head>
+
 <body>
   <div class="check">
     <svg viewBox="0 0 52 52"><path d="M14 27l7 7 17-17"/></svg>
@@ -49,6 +51,7 @@
 
   <script>
     window.addEventListener('load', () => {
+      // --- Extract core data ---
       const url = new URL(location.href);
       const eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid');
       const fbcMatch = document.cookie.match(/_fbc=([^;]+)/);
@@ -56,42 +59,47 @@
       const fbc = fbcMatch ? decodeURIComponent(fbcMatch[1]) : '';
       const fbp = fbpMatch ? decodeURIComponent(fbpMatch[1]) : '';
 
-      // 🔹 Always track PageView for continuity (not a Lead)
+      // --- PageView (fires once per visit)
       if (!sessionStorage.getItem('myle_ty_pv')) {
         fbq('track', 'PageView', { fbc, fbp });
         sessionStorage.setItem('myle_ty_pv', '1');
       }
 
-      // 🔹 Fire Lead only if a real submission was tracked
+      // --- Skip if no lead detected ---
       if (!eid) {
         console.log('⚠️ No event_id found — skipping Lead (user didn’t submit form).');
         return;
       }
 
-      // Prevent duplicate re-firing
+      // --- Skip duplicate leads ---
       if (sessionStorage.getItem('myle_lead_fired')) {
         console.log('⚙️ Lead event already sent — skipping duplicate.');
         return;
       }
 
-      console.log('🎯 Confirmed Lead redirect — syncing with CAPI...', eid);
+      console.log('🎯 Lead confirmed, syncing Pixel + CAPI...', eid);
 
-      // Retry server-side only (silent backup)
-      fetch('https://api.mylecommunity.in/fb-capi', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event_name: 'Lead',
-          event_id: eid,
-          event_source_url: window.location.href,
-          fbc,
-          fbp,
-          action_source: 'website',
-          event_time: Math.floor((Date.now() - performance.timing.navigationStart) / 1000) + Math.floor(performance.timing.navigationStart / 1000)
-        })
-      }).catch(err => console.warn('CAPI retry failed:', err));
+      // --- Fire Lead (browser event)
+      fbq('track', 'Lead', { fbc, fbp, event_id: eid });
 
-      // Mark as completed
+      // --- Wait 1s before sending to CAPI (dedup alignment)
+      setTimeout(() => {
+        fetch('https://api.mylecommunity.in/fb-capi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_name: 'Lead',
+            event_id: eid,
+            event_source_url: window.location.href,
+            fbc,
+            fbp,
+            action_source: 'website',
+            event_time: Math.floor(Date.now() / 1000)
+          })
+        }).catch(err => console.warn('⚠️ CAPI sync failed:', err));
+      }, 1000);
+
+      // --- Mark lead as processed ---
       sessionStorage.setItem('myle_lead_fired', '1');
       sessionStorage.removeItem('myle_lead_eid');
     });
