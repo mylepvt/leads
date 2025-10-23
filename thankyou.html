@@ -51,8 +51,10 @@
     window.addEventListener('load', () => {
       const url = new URL(location.href);
       const eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid');
-      const fbc = (document.cookie.match(/_fbc=([^;]+)/) || [])[1] || '';
-      const fbp = (document.cookie.match(/_fbp=([^;]+)/) || [])[1] || '';
+      const fbcMatch = document.cookie.match(/_fbc=([^;]+)/);
+      const fbpMatch = document.cookie.match(/_fbp=([^;]+)/);
+      const fbc = fbcMatch ? decodeURIComponent(fbcMatch[1]) : '';
+      const fbp = fbpMatch ? decodeURIComponent(fbpMatch[1]) : '';
 
       // 🔹 Always track PageView for continuity (not a Lead)
       if (!sessionStorage.getItem('myle_ty_pv')) {
@@ -85,7 +87,7 @@
           fbc,
           fbp,
           action_source: 'website',
-          event_time: Math.floor(Date.now() / 1000)
+          event_time: Math.floor((Date.now() - performance.timing.navigationStart) / 1000) + Math.floor(performance.timing.navigationStart / 1000)
         })
       }).catch(err => console.warn('CAPI retry failed:', err));
 
