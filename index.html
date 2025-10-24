@@ -96,7 +96,7 @@
     }
 
     // --- Build Zoho Form URL (pass event_id, fbc, fbp)
-    let formURL = `${FORM_BASE}?event_id=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}`;
+    let formURL = `${FORM_BASE}?SingleLine4=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}`;
     if (fbclid) formURL += `&fbclid=${encodeURIComponent(fbclid)}`;
     document.getElementById('zohoFormFrame').src = formURL;
 
