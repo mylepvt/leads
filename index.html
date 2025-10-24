@@ -46,7 +46,6 @@
 </head>
 <body>
 
-  <!-- ✅ Fullscreen Zoho Form -->
   <iframe
     id="zohoFormFrame"
     title="Let's Work with Myle Community 🚀"
@@ -61,7 +60,7 @@
     const THANK_URL = '/thankyou.html';
     const FORM_BASE = 'https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
 
-    // --- Generate shared unique event_id (used in Zoho + CAPI + thankyou)
+    // --- Generate shared event_id
     const eid = 'MYLE-' + Math.floor(Date.now() / 1000);
     sessionStorage.setItem('myle_lead_eid', eid);
 
@@ -69,15 +68,14 @@
     const setCookie = (n,v) =>
       document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
     const getCookie = (n) =>
-      (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
+      (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
 
-    // --- fbclid handling
+    // --- fbclid, fbc, fbp
     const params = new URLSearchParams(location.search);
     const fbclidParam = params.get('fbclid');
     if (fbclidParam) setCookie('fbclid', fbclidParam);
     const fbclid = fbclidParam || getCookie('fbclid');
 
-    // --- fbc / fbp generation
     let fbc = getCookie('_fbc');
     let fbp = getCookie('_fbp');
     if (!fbp) {
@@ -89,18 +87,18 @@
       setCookie('_fbc', fbc);
     }
 
-    // --- Fire PageView once
+    // --- Fire PageView
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track','PageView',{fbc,fbp});
       sessionStorage.setItem('myle_pageview_fired','1');
     }
 
-    // --- Build Zoho Form URL (pass event_id, fbc, fbp)
+    // --- Build Zoho URL (maps to hidden field SingleLine4)
     let formURL = `${FORM_BASE}?SingleLine4=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}`;
     if (fbclid) formURL += `&fbclid=${encodeURIComponent(fbclid)}`;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // --- Lead redirect handler
+    // --- Redirect to thankyou
     let redirected = false;
     function goThankYou(){
       if (redirected) return; redirected = true;
@@ -108,15 +106,13 @@
       const t = new URL(THANK_URL,location.origin);
       t.searchParams.set('e',eid);
       if (fbclid) t.searchParams.set('fbclid',fbclid);
-      location.href=t.toString();
+      location.href = t.toString();
     }
 
-    // --- Detect Zoho "success" message
     window.addEventListener('message',e=>{
       if (typeof e.data==='string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
     });
 
-    // --- Backup content watcher
     const iframe=document.getElementById('zohoFormFrame');
     const watcher=setInterval(()=>{
       if(redirected){clearInterval(watcher);return;}
