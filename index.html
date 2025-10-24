@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://www.facebook.com" crossorigin>
   <link rel="preconnect" href="https://forms.zohopublic.in" crossorigin>
 
-  <!-- Meta Pixel -->
+  <!-- ✅ Meta Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -56,7 +56,7 @@
     const FORM_BASE = 'https://forms.zohopublic.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
     const THANK_URL = '/thankyou.html';
 
-    // Cookie helpers
+    // --- Cookie Helpers ---
     const setCookie = (n,v) =>
       document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
@@ -64,85 +64,82 @@
     const params = new URLSearchParams(location.search);
     const fbclidParam = params.get('fbclid');
 
-    // Store fbclid persistently
+    // --- Store fbclid persistently ---
     if (fbclidParam) setCookie('fbclid', fbclidParam);
     const fbclid = fbclidParam || getCookie('fbclid');
 
     let fbc = getCookie('_fbc');
     let fbp = getCookie('_fbp');
 
-    // Generate fbp if missing
+    // --- Generate fbp if missing ---
     if (!fbp) {
       fbp = `fb.1.${Math.floor(Date.now()/1000)}.${Math.random().toString(36).substring(2,12)}`;
       setCookie('_fbp', fbp);
     }
 
-    // Generate fbc if missing
+    // --- Generate fbc if missing ---
     if (fbclid && !fbc) {
       fbc = `fb.1.${Math.floor(Date.now()/1000)}.${fbclid}`;
       setCookie('_fbc', fbc);
     }
 
-    // Load Zoho Form with fbclid + fbp
+    // --- Load Zoho Form with fbclid + fbp ---
     let formURL = `${FORM_BASE}?fbp=${fbp}`;
     if (fbclid) formURL += `&fbclid=${fbclid}`;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // Fire PageView once
+    // --- Fire PageView Once ---
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track','PageView',{fbc,fbp});
       sessionStorage.setItem('myle_pageview_fired','1');
     }
 
     let redirected = false;
+
+    // --- Core Thank You Redirect Function ---
     async function goThankYou(){
       if (redirected) return; redirected = true;
-      const eid = 'MYLE-' + Math.floor(Date.now()/1000);
-      sessionStorage.setItem('myle_lead_eid',eid);
-      sessionStorage.setItem('lead_fired','1'); // ✅ mark but don’t fire Lead yet
 
-      // Capture IP
-      let client_ip = '';
+      let eid = null;
       try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        client_ip = (await res.json()).ip || '';
-      } catch {}
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        // Try to get Zoho's Unique ID field
+        const idField = doc.querySelector('input[name="Unique ID"], input[name="Unique_ID"], input[name*="Unique"]');
+        eid = idField ? idField.value.trim() : null;
+      } catch (err) {
+        console.warn('⚠️ Could not access Zoho unique ID, using fallback');
+      }
 
-      // Send CAPI event (server side)
-      fetch('https://api.mylecommunity.in/fb-capi',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          event_name:'Lead',
-          event_id:eid,
-          event_source_url:location.href,
-          fbc,fbp,
-          client_ip_address:client_ip,
-          action_source:'website',
-          event_time:Math.floor(Date.now()/1000)
-        })
-      }).catch(err=>console.warn('⚠️ CAPI failed',err));
+      // Fallback if Zoho ID not found
+      if (!eid) eid = 'MYLE-' + Math.floor(Date.now()/1000);
+      sessionStorage.setItem('myle_lead_eid', eid);
 
-      // Redirect to thank-you page
-      const t = new URL(THANK_URL,location.origin);
-      if (fbclid) t.searchParams.set('fbclid',fbclid);
-      t.searchParams.set('e',eid);
-      location.href=t.toString();
+      // --- Fire Pixel Lead ---
+      fbq('track', 'Lead', { fbc, fbp, event_id: eid });
+      sessionStorage.setItem('lead_fired', '1');
+
+      // --- Redirect to Thank You Page ---
+      const t = new URL(THANK_URL, location.origin);
+      if (fbclid) t.searchParams.set('fbclid', fbclid);
+      t.searchParams.set('e', eid);
+      location.href = t.toString();
     }
 
-    window.addEventListener('message',e=>{
-      if (typeof e.data==='string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
+    // --- Detect Submission Message from Zoho Form ---
+    window.addEventListener('message', e => {
+      if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
     });
 
-    const iframe=document.getElementById('zohoFormFrame');
-    const watcher=setInterval(()=>{
-      if(redirected){clearInterval(watcher);return;}
-      try{
-        const doc=iframe.contentDocument||iframe.contentWindow.document;
-        const text=(doc.body&&doc.body.innerText||'').toLowerCase();
-        if(text.includes('thank')&&text.includes('submitted')) goThankYou();
-      }catch{}
-    },900);
+    // --- Fallback Watcher for text-based confirmation ---
+    const iframe = document.getElementById('zohoFormFrame');
+    const watcher = setInterval(() => {
+      if (redirected) { clearInterval(watcher); return; }
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const text = (doc.body && doc.body.innerText || '').toLowerCase();
+        if (text.includes('thank') && text.includes('submitted')) goThankYou();
+      } catch {}
+    }, 900);
   </script>
 </body>
 </html>
