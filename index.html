@@ -64,7 +64,7 @@
     const params = new URLSearchParams(location.search);
     const fbclidParam = params.get('fbclid');
 
-    // If fbclid exists in URL, store it persistently
+    // Store fbclid persistently
     if (fbclidParam) setCookie('fbclid', fbclidParam);
     const fbclid = fbclidParam || getCookie('fbclid');
 
@@ -88,7 +88,7 @@
     if (fbclid) formURL += `&fbclid=${fbclid}`;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // Fire PageView
+    // Fire PageView once
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track','PageView',{fbc,fbp});
       sessionStorage.setItem('myle_pageview_fired','1');
@@ -99,21 +99,16 @@
       if (redirected) return; redirected = true;
       const eid = 'MYLE-' + Math.floor(Date.now()/1000);
       sessionStorage.setItem('myle_lead_eid',eid);
+      sessionStorage.setItem('lead_fired','1'); // ✅ mark but don’t fire Lead yet
 
-    // Prevent double Lead events
-    if (!sessionStorage.getItem('lead_fired')) {
-      fbq('track','Lead',{fbc,fbp,event_id:eid});
-      sessionStorage.setItem('lead_fired','1');
-    }
-
-      // Capture IP (optional)
+      // Capture IP
       let client_ip = '';
       try {
         const res = await fetch('https://api.ipify.org?format=json');
         client_ip = (await res.json()).ip || '';
       } catch {}
 
-      // Send to CAPI
+      // Send CAPI event (server side)
       fetch('https://api.mylecommunity.in/fb-capi',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -128,6 +123,7 @@
         })
       }).catch(err=>console.warn('⚠️ CAPI failed',err));
 
+      // Redirect to thank-you page
       const t = new URL(THANK_URL,location.origin);
       if (fbclid) t.searchParams.set('fbclid',fbclid);
       t.searchParams.set('e',eid);
