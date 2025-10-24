@@ -46,6 +46,7 @@
 </head>
 <body>
 
+  <!-- ✅ Fullscreen Zoho Form Embed -->
   <iframe
     id="zohoFormFrame"
     title="Let's Work with Myle Community 🚀"
@@ -60,17 +61,17 @@
     const THANK_URL = '/thankyou.html';
     const FORM_BASE = 'https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
 
-    // --- Generate shared event_id
+    // --- Generate shared event_id (used in Zoho + CAPI + Thankyou)
     const eid = 'MYLE-' + Math.floor(Date.now() / 1000);
     sessionStorage.setItem('myle_lead_eid', eid);
 
-    // --- Cookie helpers
+    // --- Cookie Helpers
     const setCookie = (n,v) =>
       document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
     const getCookie = (n) =>
-      (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
+      (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
 
-    // --- fbclid, fbc, fbp
+    // --- fbclid, fbc, fbp setup
     const params = new URLSearchParams(location.search);
     const fbclidParam = params.get('fbclid');
     if (fbclidParam) setCookie('fbclid', fbclidParam);
@@ -87,41 +88,44 @@
       setCookie('_fbc', fbc);
     }
 
-    // --- Fire PageView
+    // --- Fire PageView once per session
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track','PageView',{fbc,fbp});
       sessionStorage.setItem('myle_pageview_fired','1');
     }
 
-    // --- Build Zoho URL (maps to hidden field SingleLine4)
+    // --- Build Zoho Form URL
+    // 'SingleLine4' = Event ID hidden field in Zoho
     let formURL = `${FORM_BASE}?SingleLine4=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}`;
     if (fbclid) formURL += `&fbclid=${encodeURIComponent(fbclid)}`;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // --- Redirect to thankyou
+    // --- Redirect to thankyou.html after submission
     let redirected = false;
     function goThankYou(){
       if (redirected) return; redirected = true;
       const eid = sessionStorage.getItem('myle_lead_eid');
-      const t = new URL(THANK_URL,location.origin);
-      t.searchParams.set('e',eid);
-      if (fbclid) t.searchParams.set('fbclid',fbclid);
+      const t = new URL(THANK_URL, location.origin);
+      t.searchParams.set('e', eid);
+      if (fbclid) t.searchParams.set('fbclid', fbclid);
       location.href = t.toString();
     }
 
-    window.addEventListener('message',e=>{
-      if (typeof e.data==='string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
+    // --- Detect Zoho "Form Submitted" message
+    window.addEventListener('message', e => {
+      if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
     });
 
-    const iframe=document.getElementById('zohoFormFrame');
-    const watcher=setInterval(()=>{
-      if(redirected){clearInterval(watcher);return;}
-      try{
-        const doc=iframe.contentDocument||iframe.contentWindow.document;
-        const text=(doc.body&&doc.body.innerText||'').toLowerCase();
-        if(text.includes('thank')&&text.includes('submitted')) goThankYou();
-      }catch{}
-    },900);
+    // --- Backup watcher (failsafe)
+    const iframe = document.getElementById('zohoFormFrame');
+    const watcher = setInterval(() => {
+      if (redirected) { clearInterval(watcher); return; }
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const text = (doc.body && doc.body.innerText || '').toLowerCase();
+        if (text.includes('thank') && text.includes('submitted')) goThankYou();
+      } catch {}
+    }, 900);
   </script>
 </body>
 </html>
