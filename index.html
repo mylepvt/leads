@@ -9,7 +9,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
 
-  <!-- ⚡ Performance Hints -->
+  <!-- ⚡ Prefetch + Preconnect -->
   <link rel="dns-prefetch" href="https://forms.zohopublic.in">
   <link rel="dns-prefetch" href="https://connect.facebook.net">
   <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
@@ -47,7 +47,7 @@
 </head>
 <body>
 
-  <!-- 🚀 Embedded Zoho Form -->
+  <!-- 🧩 Zoho Form Embed -->
   <iframe id="zohoFormFrame"
     title="Let's Work with Myle Community 🚀"
     sandbox="allow-scripts allow-forms allow-same-origin"
@@ -85,61 +85,88 @@
       setCookie('_fbc', fbc);
     }
 
-    // ⛔ Disable Zoho’s internal tracking (prevents duplicate Pixel fires)
+    // ⛔ Disable Zoho’s own lead-tracking
     window.ZFAdvLead = true;
 
-    // --- Load Zoho Form with fbclid + fbp ---
+    // --- Load Zoho Form ---
     let formURL = `${FORM_BASE}?fbp=${fbp}`;
     if (fbclid) formURL += `&fbclid=${fbclid}`;
-    document.getElementById('zohoFormFrame').src = formURL;
+    const iframe = document.getElementById('zohoFormFrame');
+    iframe.src = formURL;
 
-    // --- Fire PageView once ---
+    // ✅ Block Zoho’s internal Pixel & Google scripts
+    iframe.addEventListener('load', () => {
+      try {
+        const blocker = iframe.contentWindow;
+        if (blocker) {
+          blocker.eval(`
+            (function() {
+              const blocked = ['connect.facebook.net', 'googletagmanager.com', 'doubleclick.net'];
+              const origCreate = document.createElement;
+              document.createElement = function(tag) {
+                const el = origCreate.call(document, tag);
+                if (tag === 'script') {
+                  const setSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src').set;
+                  Object.defineProperty(el, 'src', {
+                    set: function(v) {
+                      if (blocked.some(b => v.includes(b))) {
+                        console.log('⛔️ Blocked Zoho script:', v);
+                        return;
+                      }
+                      setSrc.call(this, v);
+                    }
+                  });
+                }
+                return el;
+              };
+            })();
+          `);
+        }
+      } catch (err) {
+        console.warn('⚠️ Blocker init failed:', err);
+      }
+    });
+
+    // --- Fire PageView (once) ---
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track','PageView',{fbc,fbp});
       sessionStorage.setItem('myle_pageview_fired','1');
     }
 
     let redirected = false;
-    const iframe = document.getElementById('zohoFormFrame');
 
-    // ✅ Final Smart Lead Handler
+    // --- Lead Capture + Redirect ---
     async function goThankYou(){
       if (redirected) return; redirected = true;
-      let eid = null;
 
+      let eid = null;
       try {
         const doc = iframe.contentDocument || iframe.contentWindow.document;
-        const bodyText = doc.body ? doc.body.innerText : '';
-
-        // ✅ Detect Zoho Unique ID (MYLE-####)
-        const match = bodyText.match(/MYLE-\d{3,6}/i);
+        const text = doc.body ? doc.body.innerText : '';
+        const match = text.match(/MYLE-\\d{3,6}/i);
         if (match && match[0]) {
           eid = match[0].trim().toUpperCase();
-          console.log("✅ Found Zoho Unique ID:", eid);
+          console.log("✅ Zoho Unique ID found:", eid);
         }
       } catch (err) {
-        console.warn("⚠️ Could not access Zoho form:", err);
+        console.warn("⚠️ Can't read Zoho document:", err);
       }
 
-      // --- Fallback if ID not found
       if (!eid) {
         eid = 'MYLE-' + Math.floor(Date.now()/1000);
         console.warn("⚠️ Using fallback Event ID:", eid);
       }
 
-      // --- Store + Fire Lead
       sessionStorage.setItem('myle_lead_eid', eid);
       fbq('track','Lead',{fbc,fbp,event_id:eid});
       sessionStorage.setItem('lead_fired','1');
 
-      // --- Capture IP (for better CAPI match)
       let client_ip = '';
       try {
         const res = await fetch('https://api.ipify.org?format=json');
         client_ip = (await res.json()).ip || '';
       } catch {}
 
-      // --- Send CAPI (server event)
       fetch('https://api.mylecommunity.in/fb-capi',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -154,19 +181,18 @@
         })
       }).catch(err=>console.warn('⚠️ CAPI failed',err));
 
-      // --- Redirect to Thank You Page (dedup sync)
       const t = new URL(THANK_URL,location.origin);
       if (fbclid) t.searchParams.set('fbclid',fbclid);
       t.searchParams.set('e',eid);
-      location.href=t.toString();
+      location.href = t.toString();
     }
 
-    // --- Listen for form submission message ---
+    // --- Message Listener ---
     window.addEventListener('message', e => {
       if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
     });
 
-    // --- Watcher fallback (safety net) ---
+    // --- Watcher Fallback ---
     const watcher = setInterval(() => {
       if (redirected) { clearInterval(watcher); return; }
       try {
