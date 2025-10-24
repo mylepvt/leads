@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
   <title>Thank You | Myle Community</title>
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
 
@@ -16,7 +16,7 @@
       t.src=v;s=b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1357484016013958');
+    fbq('init','1357484016013958');
   </script>
   <noscript>
     <img height="1" width="1" style="display:none"
@@ -27,18 +27,30 @@
   <style>
     :root { color-scheme: dark; }
     body {
-      margin:0; background:#0e0e14; color:#fff;
-      font-family:system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
-      min-height:100dvh; display:flex; flex-direction:column;
-      align-items:center; justify-content:center; text-align:center; padding:24px;
+      margin: 0;
+      background: #0e0e14;
+      color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
     }
-    .check{width:84px;height:84px;border-radius:50%;background:#4caf50;
-      display:flex;align-items:center;justify-content:center;margin-bottom:16px;
-      animation:pop .35s ease;}
-    .check svg{width:44px;height:44px;stroke:#fff;stroke-width:4;fill:none;}
-    h1{margin:6px 0 8px;font-size:28px;}
-    p{opacity:.85;max-width:520px}
-    @keyframes pop{from{transform:scale(.85);opacity:.5}to{transform:scale(1);opacity:1}}
+    .check {
+      width: 84px; height: 84px;
+      border-radius: 50%;
+      background: #4caf50;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+      animation: pop .35s ease;
+    }
+    .check svg { width: 44px; height: 44px; stroke: #fff; stroke-width: 4; fill: none; }
+    h1 { margin: 6px 0 8px; font-size: 28px; }
+    p { opacity: .85; max-width: 520px; line-height: 1.5; }
+    @keyframes pop { from { transform: scale(.85); opacity: .5 } to { transform: scale(1); opacity: 1 } }
   </style>
 </head>
 
@@ -47,62 +59,60 @@
     <svg viewBox="0 0 52 52"><path d="M14 27l7 7 17-17"/></svg>
   </div>
   <h1>Thank You!</h1>
-  <p>Your form has been submitted successfully 🎉 You will get a call from MYLE Community within 24 hours 📞</p>
+  <p>Your form has been submitted successfully 🎉  
+     You will get a call from MYLE Community within 24 hours 📞</p>
 
   <script>
     window.addEventListener('load', () => {
-      // --- Extract event ID from Zoho redirect (this is the dedup fix) ---
       const url = new URL(location.href);
-      const eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid');
-      
-      // --- Extract fbc/fbp cookies ---
+
+      // --- Extract event_id from URL or session
+      let eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid');
       const fbcMatch = document.cookie.match(/_fbc=([^;]+)/);
       const fbpMatch = document.cookie.match(/_fbp=([^;]+)/);
       const fbc = fbcMatch ? decodeURIComponent(fbcMatch[1]) : '';
       const fbp = fbpMatch ? decodeURIComponent(fbpMatch[1]) : '';
 
-      // --- Fire PageView once per session ---
-      if (!sessionStorage.getItem('myle_ty_pv')) {
+      // --- PageView (fires once)
+      if (!sessionStorage.getItem('myle_ty_pageview')) {
         fbq('track', 'PageView', { fbc, fbp });
-        sessionStorage.setItem('myle_ty_pv', '1');
+        sessionStorage.setItem('myle_ty_pageview', '1');
       }
 
-      // --- Skip if no lead detected ---
+      // --- Skip Lead event if already fired
+      if (sessionStorage.getItem('myle_lead_confirmed')) {
+        console.log('⚙️ Lead event already confirmed.');
+        return;
+      }
+
+      // --- Validate event_id
       if (!eid) {
-        console.log('⚠️ No event_id found — skipping Lead (user didn’t submit form).');
-        return;
+        console.warn('⚠️ Missing event_id — fallback applied.');
+        eid = 'MYLE-' + Math.floor(Date.now() / 1000);
       }
 
-      // --- Skip duplicate leads ---
-      if (sessionStorage.getItem('myle_lead_fired')) {
-        console.log('⚙️ Lead event already sent — skipping duplicate.');
-        return;
-      }
+      console.log('🎯 Confirming Lead Event:', eid);
 
-      console.log('🎯 Lead confirmed, syncing Pixel + CAPI...', eid);
-
-      // --- Fire Lead (Browser Pixel) ---
+      // --- Fire Lead Pixel
       fbq('track', 'Lead', { fbc, fbp, event_id: eid });
 
-      // --- Wait 1s then send CAPI ---
-      setTimeout(() => {
-        fetch('https://api.mylecommunity.in/fb-capi', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            event_name: 'Lead',
-            event_id: eid, // 🔥 using Zoho’s unique ID
-            event_source_url: window.location.href,
-            fbc,
-            fbp,
-            action_source: 'website',
-            event_time: Math.floor(Date.now() / 1000)
-          })
-        }).catch(err => console.warn('⚠️ CAPI sync failed:', err));
-      }, 1000);
+      // --- Send matching CAPI call (for safety dedup)
+      fetch('https://api.mylecommunity.in/fb-capi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_name: 'Lead',
+          event_id: eid,
+          event_source_url: window.location.href,
+          fbc,
+          fbp,
+          action_source: 'website',
+          event_time: Math.floor(Date.now() / 1000)
+        })
+      }).catch(err => console.warn('⚠️ CAPI sync failed:', err));
 
-      // --- Mark lead as fired ---
-      sessionStorage.setItem('myle_lead_fired', '1');
+      // --- Lock Lead confirmation to avoid duplicates
+      sessionStorage.setItem('myle_lead_confirmed', '1');
       sessionStorage.removeItem('myle_lead_eid');
     });
   </script>
