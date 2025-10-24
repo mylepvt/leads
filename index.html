@@ -10,10 +10,8 @@
   <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
 
   <link rel="dns-prefetch" href="https://forms.mylecommunity.in">
-  <link rel="dns-prefetch" href="https://connect.facebook.net">
   <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
   <link rel="preconnect" href="https://www.facebook.com" crossorigin>
-  <link rel="preconnect" href="https://forms.mylecommunity.in" crossorigin>
 
   <!-- ✅ Meta Pixel -->
   <script>
@@ -48,11 +46,10 @@
 </head>
 <body>
 
-  <!-- ✅ Fullscreen verified form embed -->
+  <!-- ✅ Fullscreen Zoho form -->
   <iframe
     id="zohoFormFrame"
     title="Let's Work with Myle Community 🚀"
-    src="https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8"
     frameborder="0"
     sandbox="allow-scripts allow-forms allow-same-origin"
     referrerpolicy="no-referrer-when-downgrade"
@@ -62,11 +59,17 @@
   <script>
     const PIXEL_ID = '1357484016013958';
     const THANK_URL = '/thankyou.html';
+    const FORM_BASE = 'https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
+
+    // --- Generate unique event_id early (shared across browser + CAPI)
+    const eid = 'MYLE-' + Math.floor(Date.now() / 1000);
+    sessionStorage.setItem('myle_lead_eid', eid);
 
     // --- Cookie helpers
     const setCookie = (n,v) =>
       document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
-    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
+    const getCookie = (n) =>
+      (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
 
     // --- fbclid handling
     const params = new URLSearchParams(location.search);
@@ -86,25 +89,30 @@
       setCookie('_fbc', fbc);
     }
 
+    // --- Build Zoho Form URL with shared event_id + fbc + fbp
+    let formURL = `${FORM_BASE}?event_id=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}`;
+    if (fbclid) formURL += `&fbclid=${encodeURIComponent(fbclid)}`;
+    document.getElementById('zohoFormFrame').src = formURL;
+
     // --- Fire PageView
     if (!sessionStorage.getItem('myle_pageview_fired')) {
       fbq('track','PageView',{fbc,fbp});
       sessionStorage.setItem('myle_pageview_fired','1');
     }
 
-    // --- Lead tracking & redirect
+    // --- Lead tracking + redirect
     let redirected = false;
     async function goThankYou(){
       if (redirected) return; redirected = true;
-      const eid = 'MYLE-' + Math.floor(Date.now()/1000);
-      sessionStorage.setItem('myle_lead_eid',eid);
 
+      const eid = sessionStorage.getItem('myle_lead_eid');
       let client_ip = '';
       try {
         const res = await fetch('https://api.ipify.org?format=json');
         client_ip = (await res.json()).ip || '';
       } catch {}
 
+      // Send to CAPI Worker
       fetch('https://api.mylecommunity.in/fb-capi',{
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -119,13 +127,14 @@
         })
       }).catch(err=>console.warn('⚠️ CAPI failed',err));
 
+      // Redirect to thank-you
       const t = new URL(THANK_URL,location.origin);
-      if (fbclid) t.searchParams.set('fbclid',fbclid);
       t.searchParams.set('e',eid);
+      if (fbclid) t.searchParams.set('fbclid',fbclid);
       location.href=t.toString();
     }
 
-    // --- Detect form success
+    // --- Detect Zoho success
     window.addEventListener('message',e=>{
       if (typeof e.data==='string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
     });
