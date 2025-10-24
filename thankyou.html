@@ -51,15 +51,17 @@
 
   <script>
     window.addEventListener('load', () => {
-      // --- Extract core data ---
+      // --- Extract event ID from Zoho redirect (this is the dedup fix) ---
       const url = new URL(location.href);
       const eid = url.searchParams.get('e') || sessionStorage.getItem('myle_lead_eid');
+      
+      // --- Extract fbc/fbp cookies ---
       const fbcMatch = document.cookie.match(/_fbc=([^;]+)/);
       const fbpMatch = document.cookie.match(/_fbp=([^;]+)/);
       const fbc = fbcMatch ? decodeURIComponent(fbcMatch[1]) : '';
       const fbp = fbpMatch ? decodeURIComponent(fbpMatch[1]) : '';
 
-      // --- PageView (fires once per visit)
+      // --- Fire PageView once per session ---
       if (!sessionStorage.getItem('myle_ty_pv')) {
         fbq('track', 'PageView', { fbc, fbp });
         sessionStorage.setItem('myle_ty_pv', '1');
@@ -79,17 +81,17 @@
 
       console.log('🎯 Lead confirmed, syncing Pixel + CAPI...', eid);
 
-      // --- Fire Lead (browser event)
+      // --- Fire Lead (Browser Pixel) ---
       fbq('track', 'Lead', { fbc, fbp, event_id: eid });
 
-      // --- Wait 1s before sending to CAPI (dedup alignment)
+      // --- Wait 1s then send CAPI ---
       setTimeout(() => {
         fetch('https://api.mylecommunity.in/fb-capi', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             event_name: 'Lead',
-            event_id: eid,
+            event_id: eid, // 🔥 using Zoho’s unique ID
             event_source_url: window.location.href,
             fbc,
             fbp,
@@ -99,7 +101,7 @@
         }).catch(err => console.warn('⚠️ CAPI sync failed:', err));
       }, 1000);
 
-      // --- Mark lead as processed ---
+      // --- Mark lead as fired ---
       sessionStorage.setItem('myle_lead_fired', '1');
       sessionStorage.removeItem('myle_lead_eid');
     });
