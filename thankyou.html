@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Thank You | Myle Community</title>
 
+  <!-- ✅ Meta Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -22,10 +23,24 @@
   </noscript>
 
   <style>
-    body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;
-    background:#0e0e14;color:#fff;font-family:system-ui;text-align:center;}
-    h1{font-size:1.8rem;margin-bottom:.3em;}
-    p{opacity:.8;}
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0e0e14;
+      color: #fff;
+      font-family: system-ui;
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: .3em;
+    }
+    p {
+      opacity: .8;
+    }
   </style>
 </head>
 <body>
@@ -35,13 +50,22 @@
   </div>
 
   <script>
+    // --- Extract from URL or session (same event_id from index.html)
     const params = new URLSearchParams(location.search);
-    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || 'MYLE-' + Math.floor(Date.now()/1000);
-    const fbc = (document.cookie.match(/_fbc=([^;]+)/)||[])[1] || '';
-    const fbp = (document.cookie.match(/_fbp=([^;]+)/)||[])[1] || '';
+    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
 
-    // Fire deduplicated Lead
-    fbq('track','Lead',{event_id:eid,fbc,fbp});
+    // --- Read fbc / fbp cookies
+    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
+    const fbc = getCookie('_fbc');
+    const fbp = getCookie('_fbp');
+
+    // --- Prevent multiple sends in same session
+    if (!sessionStorage.getItem('myle_lead_sent')) {
+      sessionStorage.setItem('myle_lead_sent', '1');
+
+      // ✅ Fire deduplicated Lead event (same event_id as CAPI)
+      fbq('track', 'Lead', { event_id: eid, fbc, fbp });
+    }
   </script>
 </body>
 </html>
