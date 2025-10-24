@@ -1,206 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
-  <title>Let's Work with Myle Community 🚀</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
+<title>Let's Work with Myle Community 🚀</title>
 
-  <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+<link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+<link rel="dns-prefetch" href="https://forms.zohopublic.in">
+<link rel="dns-prefetch" href="https://connect.facebook.net">
+<link rel="preconnect" href="https://connect.facebook.net" crossorigin>
+<link rel="preconnect" href="https://www.facebook.com" crossorigin>
+<link rel="preconnect" href="https://forms.zohopublic.in" crossorigin>
 
-  <!-- ⚡ Prefetch + Preconnect -->
-  <link rel="dns-prefetch" href="https://forms.zohopublic.in">
-  <link rel="dns-prefetch" href="https://connect.facebook.net">
-  <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
-  <link rel="preconnect" href="https://www.facebook.com" crossorigin>
-  <link rel="preconnect" href="https://forms.zohopublic.in" crossorigin>
+<!-- ✅ Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1357484016013958');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/></noscript>
 
-  <!-- ✅ Meta Pixel -->
-  <script>
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)
-    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init','1357484016013958');
-  </script>
-  <noscript>
-    <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
-  </noscript>
-
-  <style>
-    :root { color-scheme: dark; }
-    html,body{
-      margin:0;padding:0;width:100%;height:100%;
-      background:#0e0e14;overflow:hidden;overscroll-behavior:none;
-    }
-    body,iframe{
-      position:fixed;inset:0;width:100%;height:100dvh;
-      border:0;display:block;background:#0e0e14;
-    }
-  </style>
+<style>
+:root { color-scheme: dark; }
+html,body{margin:0;padding:0;width:100%;height:100%;background:#0e0e14;overflow:hidden;overscroll-behavior:none;}
+body,iframe{position:fixed;inset:0;width:100%;height:100dvh;border:0;display:block;background:#0e0e14;}
+</style>
 </head>
+
 <body>
+<iframe id="zohoFormFrame" title="Let's Work with Myle Community 🚀"
+sandbox="allow-scripts allow-forms allow-same-origin"
+referrerpolicy="no-referrer-when-downgrade"></iframe>
 
-  <!-- 🧩 Zoho Form Embed -->
-  <iframe id="zohoFormFrame"
-    title="Let's Work with Myle Community 🚀"
-    sandbox="allow-scripts allow-forms allow-same-origin"
-    referrerpolicy="no-referrer-when-downgrade"></iframe>
+<script>
+// === META x ZOHO Final Clean Build v4.5.4 ===
+const PIXEL_ID='1357484016013958';
+const FORM_BASE='https://forms.zohopublic.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
+const THANK_URL='/thankyou.html';
 
-  <script>
-    const PIXEL_ID = '1357484016013958';
-    const FORM_BASE = 'https://forms.zohopublic.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
-    const THANK_URL = '/thankyou.html';
+// 🧱 Block Zoho Pixel Calls Before Iframe Load
+const origOpen=XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open=function(...a){if(a[1]&&a[1].includes('connect.facebook.net')){console.log('⛔ Blocked Zoho fb pixel:',a[1]);return;}
+return origOpen.apply(this,a);}
+const origFetch=window.fetch;
+window.fetch=async function(...a){if(a[0]&&typeof a[0]==='string'&&a[0].includes('connect.facebook.net')){console.log('⛔ Blocked Zoho fb pixel fetch:',a[0]);
+return new Response('',{status:204});}return origFetch.apply(this,a);}
 
-    // --- Cookie Helpers ---
-    const setCookie = (n,v) =>
-      document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*90}`;
-    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
+// 🧩 Cookie Utils
+const setCookie=(n,v)=>document.cookie=`${n}=${v};path=/;domain=.mylecommunity.in;SameSite=None;Secure;max-age=${60*60*24*90}`;
+const getCookie=(n)=>(document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
+const p=new URLSearchParams(location.search),fbclidParam=p.get('fbclid');
+if(fbclidParam)setCookie('fbclid',fbclidParam);
+const fbclid=fbclidParam||getCookie('fbclid');
+let fbc=getCookie('_fbc'),fbp=getCookie('_fbp');
+if(!fbp){fbp=`fb.1.${Math.floor(Date.now()/1000)}.${Math.random().toString(36).substring(2,12)}`;setCookie('_fbp',fbp);}
+if(fbclid&&!fbc){fbc=`fb.1.${Math.floor(Date.now()/1000)}.${fbclid}`;setCookie('_fbc',fbc);}
+window.ZFAdvLead=true;
 
-    const params = new URLSearchParams(location.search);
-    const fbclidParam = params.get('fbclid');
+// 🧠 Load Zoho Form
+const iframe=document.getElementById('zohoFormFrame');
+let formURL=`${FORM_BASE}?fbp=${fbp}`;
+if(fbclid)formURL+=`&fbclid=${fbclid}`;
+iframe.src=formURL;
 
-    // --- Store fbclid persistently ---
-    if (fbclidParam) setCookie('fbclid', fbclidParam);
-    const fbclid = fbclidParam || getCookie('fbclid');
+// 🧠 Fire PageView
+if(!sessionStorage.getItem('myle_pageview_fired')){
+fbq('track','PageView',{fbc,fbp});
+sessionStorage.setItem('myle_pageview_fired','1');
+}
 
-    let fbc = getCookie('_fbc');
-    let fbp = getCookie('_fbp');
+// 🧩 Lead Tracking Logic
+let redirected=false;
+async function goThankYou(){
+if(redirected)return;redirected=true;
+const eid='MYLE-'+Math.floor(Date.now()/1000);
+sessionStorage.setItem('myle_lead_eid',eid);
+fbq('track','Lead',{fbc,fbp,event_id:eid});
+let client_ip='';
+try{const r=await fetch('https://api.ipify.org?format=json');client_ip=(await r.json()).ip||'';}catch{}
+fetch('https://api.mylecommunity.in/fb-capi',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({event_name:'Lead',event_id:eid,event_source_url:location.href,fbc,fbp,client_ip_address:client_ip,action_source:'website',event_time:Math.floor(Date.now()/1000)})})
+.catch(err=>console.warn('⚠️ CAPI failed',err));
+const t=new URL(THANK_URL,location.origin);
+if(fbclid)t.searchParams.set('fbclid',fbclid);
+t.searchParams.set('e',eid);
+location.href=t.toString();
+}
 
-    // --- Generate fbp if missing ---
-    if (!fbp) {
-      fbp = `fb.1.${Math.floor(Date.now()/1000)}.${Math.random().toString(36).substring(2,12)}`;
-      setCookie('_fbp', fbp);
-    }
-
-    // --- Generate fbc if missing ---
-    if (fbclid && !fbc) {
-      fbc = `fb.1.${Math.floor(Date.now()/1000)}.${fbclid}`;
-      setCookie('_fbc', fbc);
-    }
-
-    // ⛔ Disable Zoho’s own lead-tracking
-    window.ZFAdvLead = true;
-
-    // --- Load Zoho Form ---
-    let formURL = `${FORM_BASE}?fbp=${fbp}`;
-    if (fbclid) formURL += `&fbclid=${fbclid}`;
-    const iframe = document.getElementById('zohoFormFrame');
-    iframe.src = formURL;
-
-    // ✅ Block Zoho’s internal Pixel & Google scripts
-    iframe.addEventListener('load', () => {
-      try {
-        const blocker = iframe.contentWindow;
-        if (blocker) {
-          blocker.eval(`
-            (function() {
-              const blocked = ['connect.facebook.net', 'googletagmanager.com', 'doubleclick.net'];
-              const origCreate = document.createElement;
-              document.createElement = function(tag) {
-                const el = origCreate.call(document, tag);
-                if (tag === 'script') {
-                  const setSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src').set;
-                  Object.defineProperty(el, 'src', {
-                    set: function(v) {
-                      if (blocked.some(b => v.includes(b))) {
-                        console.log('⛔️ Blocked Zoho script:', v);
-                        return;
-                      }
-                      setSrc.call(this, v);
-                    }
-                  });
-                }
-                return el;
-              };
-            })();
-          `);
-        }
-      } catch (err) {
-        console.warn('⚠️ Blocker init failed:', err);
-      }
-    });
-
-    // --- Fire PageView (once) ---
-    if (!sessionStorage.getItem('myle_pageview_fired')) {
-      fbq('track','PageView',{fbc,fbp});
-      sessionStorage.setItem('myle_pageview_fired','1');
-    }
-
-    let redirected = false;
-
-    // --- Lead Capture + Redirect ---
-    async function goThankYou(){
-      if (redirected) return; redirected = true;
-
-      let eid = null;
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        const text = doc.body ? doc.body.innerText : '';
-        const match = text.match(/MYLE-\\d{3,6}/i);
-        if (match && match[0]) {
-          eid = match[0].trim().toUpperCase();
-          console.log("✅ Zoho Unique ID found:", eid);
-        }
-      } catch (err) {
-        console.warn("⚠️ Can't read Zoho document:", err);
-      }
-
-      if (!eid) {
-        eid = 'MYLE-' + Math.floor(Date.now()/1000);
-        console.warn("⚠️ Using fallback Event ID:", eid);
-      }
-
-      sessionStorage.setItem('myle_lead_eid', eid);
-      fbq('track','Lead',{fbc,fbp,event_id:eid});
-      sessionStorage.setItem('lead_fired','1');
-
-      let client_ip = '';
-      try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        client_ip = (await res.json()).ip || '';
-      } catch {}
-
-      fetch('https://api.mylecommunity.in/fb-capi',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          event_name:'Lead',
-          event_id:eid,
-          event_source_url:location.href,
-          fbc,fbp,
-          client_ip_address:client_ip,
-          action_source:'website',
-          event_time:Math.floor(Date.now()/1000)
-        })
-      }).catch(err=>console.warn('⚠️ CAPI failed',err));
-
-      const t = new URL(THANK_URL,location.origin);
-      if (fbclid) t.searchParams.set('fbclid',fbclid);
-      t.searchParams.set('e',eid);
-      location.href = t.toString();
-    }
-
-    // --- Message Listener ---
-    window.addEventListener('message', e => {
-      if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) goThankYou();
-    });
-
-    // --- Watcher Fallback ---
-    const watcher = setInterval(() => {
-      if (redirected) { clearInterval(watcher); return; }
-      try {
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        const text = (doc.body && doc.body.innerText || '').toLowerCase();
-        if (text.includes('thank') && text.includes('submitted')) goThankYou();
-      } catch {}
-    }, 900);
-  </script>
+// 🔔 Detect Submission
+window.addEventListener('message',e=>{if(typeof e.data==='string'&&e.data.toLowerCase().includes('successfully submitted'))goThankYou();});
+const watcher=setInterval(()=>{if(redirected){clearInterval(watcher);return;}
+try{const doc=iframe.contentDocument||iframe.contentWindow.document;
+const text=(doc.body&&doc.body.innerText||'').toLowerCase();
+if(text.includes('thank')&&text.includes('submitted'))goThankYou();}catch{}},900);
+</script>
 </body>
 </html>
