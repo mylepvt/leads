@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Thank You | Myle Community</title>
 
+  <!-- ✅ Meta Pixel Loader -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -18,7 +19,12 @@
     const pixelId = '1720735588606972';
     fbq('init', pixelId);
 
-    console.log('%c[MYLE v2 Pixel]', 'color:#06f;font-weight:bold;', `Fired using Pixel ID → ${pixelId}`);
+    // 🧠 Debug Log (invisible to users)
+    console.log(
+      '%c[MYLE v2 Pixel]',
+      'color:#06f;font-weight:bold;',
+      `Initialized → Pixel ID: ${pixelId}`
+    );
   </script>
 
   <noscript>
@@ -27,9 +33,22 @@
   </noscript>
 
   <style>
-    body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#0e0e14;color:#fff;font-family:system-ui;text-align:center;}
-    h1{font-size:1.8rem;margin-bottom:.3em;}
-    p{opacity:.8;}
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0e0e14;
+      color: #fff;
+      font-family: system-ui;
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: .3em;
+    }
+    p { opacity: .8; }
   </style>
 </head>
 <body>
@@ -39,15 +58,34 @@
   </div>
 
   <script>
-    const params=new URLSearchParams(location.search);
-    const eid=params.get('e')||sessionStorage.getItem('myle_lead_eid')||('MYLE-'+Math.floor(Date.now()/1000));
-    const getCookie=n=>(document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
-    const fbc=getCookie('_fbc'),fbp=getCookie('_fbp');
+    // --- Extract event_id from URL or session (same as Worker)
+    const params = new URLSearchParams(location.search);
+    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
 
-    if(!sessionStorage.getItem('myle_lead_sent')){
-      sessionStorage.setItem('myle_lead_sent','1');
-      fbq('track','Lead',{event_id:eid,fbc,fbp,value:50,currency:'INR'});
-      console.log('%c[MYLE v2 Pixel]','color:#06f;',`Lead event fired → Event ID: ${eid}`);
+    // --- Read cookies for fbc / fbp
+    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
+    const fbc = getCookie('_fbc');
+    const fbp = getCookie('_fbp');
+
+    // --- Prevent duplicate firing within same session
+    if (!sessionStorage.getItem('myle_lead_sent')) {
+      sessionStorage.setItem('myle_lead_sent', '1');
+
+      // ✅ Fire deduplicated Lead event
+      fbq('track', 'Lead', {
+        event_id: eid,
+        fbc,
+        fbp,
+        value: 50,
+        currency: 'INR'
+      });
+
+      // 🧠 Debug log to confirm event firing
+      console.log(
+        '%c[MYLE Pixel]',
+        'color:#06f;',
+        `Lead event fired → Pixel: ${'1720735588606972'} | Event ID: ${eid}`
+      );
     }
   </script>
 </body>
