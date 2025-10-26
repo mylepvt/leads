@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Thank You | Myle Community</title>
 
-  <!-- ✅ Meta Pixel Loader -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -16,42 +15,21 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    /* 🔄 Auto-detect pixel based on referrer */
-    const ref = document.referrer.toLowerCase();
-    let pixelId = '1357484016013958'; // Primary (Ad Account 1)
-    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2')) {
-      pixelId = '1720735588606972'; // Secondary (Ad Account 2)
-    }
-
+    const pixelId = '1720735588606972';
     fbq('init', pixelId);
 
-    // 🧠 Debug Log (visible only in console)
-    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Fired using Pixel ID → ${pixelId}`);
-    console.log('%c[MYLE Pixel]', 'color:#06f;', `Referrer detected: ${document.referrer}`);
+    console.log('%c[MYLE v2 Pixel]', 'color:#06f;font-weight:bold;', `Fired using Pixel ID → ${pixelId}`);
   </script>
 
   <noscript>
     <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
+      src="https://www.facebook.com/tr?id=1720735588606972&ev=PageView&noscript=1"/>
   </noscript>
 
   <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0e0e14;
-      color: #fff;
-      font-family: system-ui;
-      text-align: center;
-    }
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: .3em;
-    }
-    p { opacity: .8; }
+    body{margin:0;height:100vh;display:flex;align-items:center;justify-content:center;background:#0e0e14;color:#fff;font-family:system-ui;text-align:center;}
+    h1{font-size:1.8rem;margin-bottom:.3em;}
+    p{opacity:.8;}
   </style>
 </head>
 <body>
@@ -61,30 +39,15 @@
   </div>
 
   <script>
-    // --- Extract event_id from URL or session (same as Worker)
-    const params = new URLSearchParams(location.search);
-    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
+    const params=new URLSearchParams(location.search);
+    const eid=params.get('e')||sessionStorage.getItem('myle_lead_eid')||('MYLE-'+Math.floor(Date.now()/1000));
+    const getCookie=n=>(document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
+    const fbc=getCookie('_fbc'),fbp=getCookie('_fbp');
 
-    // --- Read cookies for fbc / fbp
-    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
-    const fbc = getCookie('_fbc');
-    const fbp = getCookie('_fbp');
-
-    // --- Prevent duplicate firing within same session
-    if (!sessionStorage.getItem('myle_lead_sent')) {
-      sessionStorage.setItem('myle_lead_sent', '1');
-
-      // ✅ Fire deduplicated Lead event
-      fbq('track', 'Lead', {
-        event_id: eid,
-        fbc,
-        fbp,
-        value: 50,
-        currency: 'INR'
-      });
-
-      // 🧠 Debug log to confirm event firing
-      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired successfully → Event ID: ${eid}`);
+    if(!sessionStorage.getItem('myle_lead_sent')){
+      sessionStorage.setItem('myle_lead_sent','1');
+      fbq('track','Lead',{event_id:eid,fbc,fbp,value:50,currency:'INR'});
+      console.log('%c[MYLE v2 Pixel]','color:#06f;',`Lead event fired → Event ID: ${eid}`);
     }
   </script>
 </body>
