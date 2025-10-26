@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Thank You | Myle Community</title>
 
-  <!-- ✅ Meta Pixel -->
+  <!-- ✅ Meta Pixel Loader -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -15,8 +15,16 @@
       t.src=v;s=b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init','1357484016013958');
+
+    /* 🔄 Detect correct pixel automatically */
+    const ref = document.referrer.toLowerCase();
+    let pixelId = '1357484016013958'; // Primary Pixel
+    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2')) {
+      pixelId = '1720735588606972'; // Secondary Pixel
+    }
+    fbq('init', pixelId);
   </script>
+
   <noscript>
     <img height="1" width="1" style="display:none"
       src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
@@ -38,9 +46,7 @@
       font-size: 1.8rem;
       margin-bottom: .3em;
     }
-    p {
-      opacity: .8;
-    }
+    p { opacity: .8; }
   </style>
 </head>
 <body>
@@ -50,20 +56,20 @@
   </div>
 
   <script>
-    // --- Extract from URL or session (same event_id from Zoho → Worker)
+    // --- Extract event_id from URL or session (same as Worker)
     const params = new URLSearchParams(location.search);
     const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
 
-    // --- Read fbc / fbp cookies
+    // --- Read cookies for fbc / fbp
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
     const fbc = getCookie('_fbc');
     const fbp = getCookie('_fbp');
 
-    // --- Prevent multiple sends in same session
+    // --- Prevent duplicate firing within same session
     if (!sessionStorage.getItem('myle_lead_sent')) {
       sessionStorage.setItem('myle_lead_sent', '1');
 
-      // ✅ Fire deduplicated Lead event (same schema as CAPI)
+      // ✅ Fire deduplicated Lead event
       fbq('track', 'Lead', {
         event_id: eid,
         fbc,
