@@ -46,11 +46,11 @@
 <body>
   <div>
     <h1>Thank You 🎉</h1>
-    <p>Your form has been submitted successfully.</p>
+    <p>We will call you within 24 hours for Work Details ℹ️</p>
   </div>
 
   <script>
-    // --- Extract from URL or session (same event_id from index.html)
+    // --- Extract from URL or session (same event_id from Zoho → Worker)
     const params = new URLSearchParams(location.search);
     const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
 
@@ -63,8 +63,14 @@
     if (!sessionStorage.getItem('myle_lead_sent')) {
       sessionStorage.setItem('myle_lead_sent', '1');
 
-      // ✅ Fire deduplicated Lead event (same event_id as CAPI)
-      fbq('track', 'Lead', { event_id: eid, fbc, fbp });
+      // ✅ Fire deduplicated Lead event (same schema as CAPI)
+      fbq('track', 'Lead', {
+        event_id: eid,
+        fbc,
+        fbp,
+        value: 50,
+        currency: 'INR'
+      });
     }
   </script>
 </body>
