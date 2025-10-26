@@ -16,13 +16,18 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    /* 🔄 Detect correct pixel automatically */
+    /* 🔄 Auto-detect pixel based on referrer */
     const ref = document.referrer.toLowerCase();
-    let pixelId = '1357484016013958'; // Primary Pixel
+    let pixelId = '1357484016013958'; // Primary (Ad Account 1)
     if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2')) {
-      pixelId = '1720735588606972'; // Secondary Pixel
+      pixelId = '1720735588606972'; // Secondary (Ad Account 2)
     }
+
     fbq('init', pixelId);
+
+    // 🧠 Debug Log (visible only in console)
+    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Fired using Pixel ID → ${pixelId}`);
+    console.log('%c[MYLE Pixel]', 'color:#06f;', `Referrer detected: ${document.referrer}`);
   </script>
 
   <noscript>
@@ -77,6 +82,9 @@
         value: 50,
         currency: 'INR'
       });
+
+      // 🧠 Debug log to confirm event firing
+      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired successfully → Event ID: ${eid}`);
     }
   </script>
 </body>
