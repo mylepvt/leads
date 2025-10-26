@@ -57,7 +57,7 @@
   </iframe>
 
   <script>
-    const PIXEL_ID = '1357484016013958';
+    const PIXEL_ID = new URLSearchParams(location.search).get('pid') || '1357484016013958';
     const THANK_URL = '/thankyou.html';
     const FORM_BASE = 'https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
 
