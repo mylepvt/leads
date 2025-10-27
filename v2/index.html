@@ -3,106 +3,178 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
-  <title>Let's Work with Myle Community 🚀</title>
+  <title>Let's Work with MYLE Community 🚀</title>
 
+  <!-- ✅ Meta & Privacy -->
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
 
-  <link rel="dns-prefetch" href="https://forms.mylecommunity.in">
-  <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
-  <link rel="preconnect" href="https://www.facebook.com" crossorigin>
+  <!-- ⚡ Performance -->
+  <link rel="dns-prefetch" href="https://forms.mylecommunity.in" />
+  <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+  <link rel="preconnect" href="https://www.facebook.com" crossorigin />
 
   <!-- ✅ Meta Pixel -->
   <script>
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)n._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)
-    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = "2.0";
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
 
-    const PIXEL_ID = '1720735588606972'; // new pixel
-    fbq('init', PIXEL_ID);
-
-    console.log('%c[MYLE v2 Index]', 'color:#06f;font-weight:bold;', `Pixel Initialized → ${PIXEL_ID}`);
+    const PIXEL_ID = "1720735588606972"; // ✅ v2 Pixel ID
+    fbq("init", PIXEL_ID);
+    window.fbq
+      ? console.log("%c[MYLE v2]", "color:#0f0;", "Pixel Ready ✅ → " + PIXEL_ID)
+      : console.warn("%c[MYLE v2]", "color:#f00;", "Pixel not loaded ⚠️");
   </script>
 
   <noscript>
     <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1720735588606972&ev=PageView&noscript=1"/>
+      src="https://www.facebook.com/tr?id=1720735588606972&ev=PageView&noscript=1" />
   </noscript>
 
+  <!-- ✅ Styling -->
   <style>
     :root { color-scheme: dark; }
-    html,body {
-      margin:0;padding:0;width:100%;height:100%;
-      background:#0e0e14;overflow:hidden;overscroll-behavior:none;
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: #0e0e14;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+      overscroll-behavior: none;
     }
-    #zohoFormFrame {
-      position:fixed;inset:0;width:100%;height:100dvh;
-      border:none;overflow:hidden;background:#0e0e14;
+    iframe {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100dvh;
+      border: none;
+      background: #0e0e14;
+    }
+    #loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: #0e0e14;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      transition: opacity 0.4s ease;
     }
   </style>
 </head>
 <body>
+  <div id="loader">Loading form...</div>
+
+  <!-- ✅ Zoho Embed -->
   <iframe
     id="zohoFormFrame"
-    title="Let's Work with Myle Community 🚀"
+    title="Let's Work with MYLE Community 🚀"
     sandbox="allow-scripts allow-forms allow-same-origin"
-    referrerpolicy="no-referrer-when-downgrade">
+    referrerpolicy="no-referrer-when-downgrade"
+    allowfullscreen>
   </iframe>
 
   <script>
-    const THANK_URL = '/v2/thankyou.html';
-    const FORM_BASE = 'https://forms.mylecommunity.in/gurveer1174gm1/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
-    const eid = 'MYLE-' + Math.floor(Date.now()/1000);
-    sessionStorage.setItem('myle_lead_eid', eid);
+    const THANK_URL = "/v2/thankyou.html";
+    const FORM_BASE =
+      "https://forms.mylecommunity.in/myle/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8";
 
-    const setCookie = (n,v)=>document.cookie=`${n}=${v};path=/;domain=.mylecommunity.in;SameSite=None;Secure;max-age=${60*60*24*90}`;
-    const getCookie = (n)=>(document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1]||'';
+    // --- Event ID for dedup
+    const eid = "MYLE-" + Math.floor(Date.now() / 1000);
+    sessionStorage.setItem("myle_lead_eid", eid);
+
+    // --- Cookie helpers
+    const setCookie = (n, v) =>
+      (document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60 * 60 * 24 * 90}`);
+    const getCookie = (n) =>
+      (document.cookie.match(new RegExp("(?:^|; )" + n + "=([^;]*)")) || [])[1] || "";
+
+    // --- fbclid, fbc, fbp setup
     const params = new URLSearchParams(location.search);
-    const fbclid = params.get('fbclid')||getCookie('fbclid');
-    if(params.get('fbclid')) setCookie('fbclid',params.get('fbclid'));
-    let fbc=getCookie('_fbc'),fbp=getCookie('_fbp');
-    if(!fbp){fbp=`fb.1.${Math.floor(Date.now()/1000)}.${Math.random().toString(36).substring(2,12)}`;setCookie('_fbp',fbp);}
-    if(fbclid&&!fbc){fbc=`fb.1.${Math.floor(Date.now()/1000)}.${fbclid}`;setCookie('_fbc',fbc);}
+    const fbclidParam = params.get("fbclid");
+    if (fbclidParam) setCookie("fbclid", fbclidParam);
+    const fbclid = fbclidParam || getCookie("fbclid");
 
-    if(!sessionStorage.getItem('myle_pageview_fired')){
-      fbq('track','PageView',{fbc,fbp});
-      sessionStorage.setItem('myle_pageview_fired','1');
+    const ts = Math.floor(Date.now() / 1000);
+    let fbc = getCookie("_fbc");
+    let fbp = getCookie("_fbp");
+    if (!fbp) {
+      fbp = `fb.1.${ts}.${Math.random().toString(36).substring(2, 12)}`;
+      setCookie("_fbp", fbp);
+    }
+    if (fbclid && !fbc) {
+      fbc = `fb.1.${ts}.${fbclid}`;
+      setCookie("_fbc", fbc);
     }
 
-    let formURL=`${FORM_BASE}?SingleLine4=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}&pixel_id=${PIXEL_ID}`;
-    if(fbclid)formURL+=`&fbclid=${encodeURIComponent(fbclid)}`;
-    document.getElementById('zohoFormFrame').src=formURL;
-
-    console.log('%c[MYLE v2 Index]', 'color:#06f;', `Event ID: ${eid}, FBC: ${fbc}, FBP: ${fbp}`);
-
-    let redirected=false;
-    function goThankYou(){
-      if(redirected)return;redirected=true;
-      const t=new URL(THANK_URL,location.origin);
-      t.searchParams.set('e',eid);
-      if(fbclid)t.searchParams.set('fbclid',fbclid);
-      location.href=t.toString();
+    // --- Fire PageView once per session
+    if (!sessionStorage.getItem("myle_pageview_fired")) {
+      if (typeof fbq === "function") fbq("track", "PageView", { fbc, fbp });
+      sessionStorage.setItem("myle_pageview_fired", "1");
     }
 
-    window.addEventListener('message',e=>{
-      if(typeof e.data==='string'&&e.data.toLowerCase().includes('successfully submitted'))goThankYou();
+    // --- Build Zoho Form URL (with dedup + pixel info)
+    let formURL = `${FORM_BASE}?SingleLine4=${eid}&fbc=${encodeURIComponent(
+      fbc
+    )}&fbp=${encodeURIComponent(fbp)}&pixel_id=${encodeURIComponent(PIXEL_ID)}`;
+    if (fbclid) formURL += `&fbclid=${encodeURIComponent(fbclid)}`;
+    document.getElementById("zohoFormFrame").src = formURL;
+
+    // --- Loader fade-out on load
+    const iframe = document.getElementById("zohoFormFrame");
+    iframe.onload = () => {
+      const loader = document.getElementById("loader");
+      loader.style.opacity = "0";
+      setTimeout(() => loader.remove(), 400);
+    };
+
+    // --- Redirect to Thank You
+    let redirected = false;
+    function goThankYou() {
+      if (redirected) return;
+      redirected = true;
+      const t = new URL(THANK_URL, location.origin);
+      t.searchParams.set("e", eid);
+      if (fbclid) t.searchParams.set("fbclid", fbclid);
+      setTimeout(() => (location.href = t.toString()), 300);
+    }
+
+    // --- Detect Zoho submission via message
+    window.addEventListener("message", (e) => {
+      if (typeof e.data === "string" && e.data.toLowerCase().includes("successfully submitted"))
+        goThankYou();
     });
 
-    const iframe=document.getElementById('zohoFormFrame');
-    const watcher=setInterval(()=>{
-      if(redirected){clearInterval(watcher);return;}
-      try{
-        const doc=iframe.contentDocument||iframe.contentWindow.document;
-        const text=(doc.body&&doc.body.innerText||'').toLowerCase();
-        if(text.includes('thank')&&text.includes('submitted'))goThankYou();
-      }catch{}
-    },900);
+    // --- Failsafe DOM watcher
+    const watcher = setInterval(() => {
+      if (redirected) {
+        clearInterval(watcher);
+        return;
+      }
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const text = (doc.body && doc.body.innerText || "").toLowerCase();
+        if (text.includes("thank") && text.includes("submitted")) goThankYou();
+      } catch {}
+    }, 800);
   </script>
 </body>
 </html>
