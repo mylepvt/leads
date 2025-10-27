@@ -16,7 +16,6 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    // 🔄 Auto Pixel Detection
     const ref = (document.referrer || '').toLowerCase();
     let pixelId = '1357484016013958';
     if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2'))
@@ -32,48 +31,58 @@
 
   <!-- ✅ Styling -->
   <style>
+    :root { color-scheme: dark; }
     body {
       margin: 0;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
       background: radial-gradient(circle at 20% 30%, #15151e, #0e0e14 70%);
-      color: #fff;
       font-family: "Inter", system-ui, sans-serif;
+      color: #fff;
       text-align: center;
       overflow: hidden;
     }
+
+    .card {
+      opacity: 0;
+      transform: translateY(25px);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 2.2rem 2.5rem;
+      box-shadow: 0 0 25px rgba(0,0,0,0.25);
+      backdrop-filter: blur(6px);
+      animation: fadeUp 1.1s ease-out forwards;
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(25px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
     h1 {
       font-size: 2rem;
       margin-bottom: .5em;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
     }
+
     p {
       opacity: .85;
       font-size: 1.05rem;
       line-height: 1.6;
       max-width: 90%;
+      margin: 0 auto;
     }
+
     .highlight {
       color: #00c3ff;
       font-weight: 600;
     }
-    .card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 2rem 2.5rem;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(6px);
-      transition: transform 0.3s ease;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-    }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>Thank You 🎉</h1>
@@ -95,14 +104,19 @@
 
     if (!sessionStorage.getItem('myle_lead_sent')) {
       sessionStorage.setItem('myle_lead_sent', '1');
-      fbq('track', 'Lead', {
-        event_id: eid,
-        fbc,
-        fbp,
-        value: 50,
-        currency: 'INR'
-      });
-      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired → Event ID: ${eid}`);
+
+      // ✅ Delay ensures fbq is fully loaded (fixes Meta currency warning)
+      setTimeout(() => {
+        fbq('track', 'Lead', {
+          event_id: eid,
+          fbc,
+          fbp,
+          value: 50.00,
+          currency: 'INR'
+        });
+        console.log('%c[MYLE Pixel]', 'color:#06f;',
+          `Lead event fired → Event ID: ${eid}, Currency: INR, Value: 50.00`);
+      }, 500);
     }
   </script>
 </body>
