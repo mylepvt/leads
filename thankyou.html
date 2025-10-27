@@ -16,15 +16,14 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    // 🔄 Auto Pixel Routing
+    // 🔄 Auto-select pixel based on referrer
     const ref = document.referrer.toLowerCase();
-    let pixelId = '1357484016013958'; // Primary
-    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2'))
-      pixelId = '1720735588606972'; // Secondary
-
+    let pixelId = '1357484016013958'; // Primary (Ad Account 1)
+    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2')) {
+      pixelId = '1720735588606972'; // Secondary (Ad Account 2)
+    }
     fbq('init', pixelId);
-    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;',
-      `Pixel Initialized → ${pixelId}`);
+    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Using Pixel → ${pixelId}`);
   </script>
 
   <noscript>
@@ -33,113 +32,108 @@
   </noscript>
 
   <style>
-    :root {
-      color-scheme: dark;
-    }
+    :root { color-scheme: dark; }
     body {
       margin: 0;
-      padding: 0;
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
       align-items: center;
-      background: radial-gradient(circle at top, #141420 0%, #0e0e14 100%);
+      justify-content: center;
+      flex-direction: column;
+      background: #0e0e14;
       color: #fff;
-      font-family: "Inter", system-ui, sans-serif;
+      font-family: system-ui, sans-serif;
       text-align: center;
       overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards;
     }
-    .container {
-      max-width: 480px;
-      padding: 24px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 18px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.3);
-      backdrop-filter: blur(8px);
-      animation: fadeIn 1.1s ease-in-out;
-    }
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    p {
-      font-size: 1rem;
-      line-height: 1.6;
-      margin: 8px 0;
-      color: #d0d0d5;
-    }
-    a {
-      display: inline-block;
-      margin-top: 18px;
-      padding: 10px 20px;
-      color: #fff;
-      text-decoration: none;
-      background: linear-gradient(90deg,#ff0077,#9b4dff);
-      border-radius: 30px;
-      font-weight: 500;
-      transition: transform 0.25s ease;
-    }
-    a:hover {
-      transform: scale(1.05);
-    }
-    .highlight {
-      color: #fff;
-      font-weight: 600;
-    }
+
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+      to { opacity: 1; }
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      margin-bottom: 0.4em;
+    }
+
+    p {
+      opacity: 0.85;
+      line-height: 1.5;
+      font-size: 1rem;
+      margin: 0.3em 0;
+    }
+
+    a.insta-btn {
+      display: inline-block;
+      margin-top: 1.4rem;
+      padding: 10px 24px;
+      background: linear-gradient(90deg, #f00073, #cc2366, #5851db);
+      color: #fff;
+      font-weight: 500;
+      border-radius: 40px;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    a.insta-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(240, 0, 115, 0.6);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="thankName">Thank you for applying at MYLE Community! 💻</h1>
-    <p>Aapko <span class="highlight">24 hours</span> ke andar call aayega 📞</p>
+  <div>
+    <h1 id="thanksTitle">Thank You 🎉</h1>
+    <p id="leadName"></p>
+    <p>Aapko <strong>24 hours ke andar call aayega 📞</strong></p>
     <p>jisme complete details share ki jayengi.</p>
-    <a href="https://www.instagram.com/karanveersingh_24/" target="_blank">
+
+    <a
+      href="#"
+      id="instaLink"
+      class="insta-btn"
+      rel="noopener noreferrer nofollow"
+    >
       🔗 Check our Instagram Profile
     </a>
   </div>
 
   <script>
-    // --- Replace name dynamically if stored
-    const name = sessionStorage.getItem('myle_name') || '';
-    if (name) {
-      document.getElementById('thankName').innerHTML =
-        `Thank you <span class="highlight">${name}</span> for applying at MYLE Community! 💻`;
-    }
-
-    // --- Extract identifiers for Meta deduplication
+    // --- Extract lead name and event ID
     const params = new URLSearchParams(location.search);
-    const eventId =
-      params.get('e') ||
-      sessionStorage.getItem('myle_lead_eid') ||
-      ('MYLE-' + Math.floor(Date.now()/1000));
+    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
+    const name = sessionStorage.getItem('myle_name') || 'there';
+    const leadName = document.getElementById('leadName');
+    leadName.innerHTML = `Thank you <strong>${name}</strong> for applying at <strong>MYLE Community 💻</strong>`;
 
-    const getCookie = (n) =>
-      (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
-
+    // --- Read cookies for fbc/fbp
+    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
     const fbc = getCookie('_fbc');
     const fbp = getCookie('_fbp');
-    const externalId = btoa(eventId).slice(0, 32);
 
-    // --- Fire deduplicated LEAD event (only once)
+    // --- Deduplicated Lead event
     if (!sessionStorage.getItem('myle_lead_sent')) {
       sessionStorage.setItem('myle_lead_sent', '1');
       fbq('track', 'Lead', {
-        event_id: eventId,
+        event_id: eid,
         fbc,
         fbp,
-        external_id: externalId,
         value: 50,
         currency: 'INR'
       });
-      console.log('%c[MYLE Pixel]', 'color:#06f;',
-        `Lead fired ✅ → Event ID: ${eventId}, FBC: ${fbc}, FBP: ${fbp}, External_ID: ${externalId}`);
+      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired → ${eid}`);
     }
+
+    // --- Instagram Button Safe Handler
+    const insta = document.getElementById('instaLink');
+    insta.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      window.open('https://www.instagram.com/karanveersingh_24/', '_blank', 'noopener,noreferrer');
+      return false;
+    });
   </script>
 </body>
 </html>
