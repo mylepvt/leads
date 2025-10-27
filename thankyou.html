@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Thank You | Myle Community</title>
+  <title>Thank You | MYLE Community</title>
 
   <!-- ✅ Meta Pixel Loader -->
   <script>
@@ -16,14 +16,14 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    // 🔄 Auto Pixel Selection (primary / secondary)
+    // 🔄 Auto-select pixel (dual-account safe)
     const ref = document.referrer.toLowerCase();
-    let pixelId = '1357484016013958';
-    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2')) {
-      pixelId = '1720735588606972';
-    }
+    let pixelId = '1357484016013958'; // Primary
+    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2'))
+      pixelId = '1720735588606972'; // Secondary
+
     fbq('init', pixelId);
-    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Using Pixel → ${pixelId}`);
+    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Pixel initialized → ${pixelId}`);
   </script>
 
   <noscript>
@@ -31,8 +31,8 @@
       src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
   </noscript>
 
+  <!-- ✅ Styling -->
   <style>
-    :root { color-scheme: dark; }
     body {
       margin: 0;
       height: 100vh;
@@ -40,100 +40,64 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      background: radial-gradient(circle at 30% 20%, #181820, #0e0e14 70%);
+      background: #0e0e14;
       color: #fff;
       font-family: system-ui, sans-serif;
       text-align: center;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadeIn 0.8s ease forwards;
     }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      padding: 30px 40px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      max-width: 420px;
-      width: 90%;
-    }
-
     h1 {
-      font-size: 1.7rem;
-      margin-bottom: 0.4em;
-    }
-
-    p {
-      opacity: 0.85;
-      line-height: 1.5;
-      font-size: 1rem;
-      margin: 0.3em 0;
-    }
-
-    button.insta-btn {
-      display: inline-block;
-      margin-top: 1.4rem;
-      padding: 11px 26px;
-      background: linear-gradient(90deg, #f00073, #cc2366, #5851db);
+      font-size: 1.8rem;
+      margin-bottom: .5em;
       color: #fff;
-      font-weight: 500;
-      border: none;
-      border-radius: 40px;
-      cursor: pointer;
-      font-size: 1rem;
-      letter-spacing: 0.3px;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
     }
-
-    button.insta-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(240, 0, 115, 0.6);
-      opacity: 0.95;
+    p {
+      opacity: .85;
+      font-size: 1rem;
+      line-height: 1.6;
+      max-width: 90%;
+    }
+    .name {
+      font-weight: 600;
+      color: #00c3ff;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Thank you for applying at <strong>MYLE Community 💻</strong></h1>
-    <p>Aapko <strong>24 hours ke andar call aayega 📞</strong></p>
-    <p>jisme complete details share ki jayengi.</p>
-
-    <button id="instaBtn" class="insta-btn" type="button">
-      🔗 Check our Instagram Profile
-    </button>
+  <div>
+    <h1>Thank You 🎉</h1>
+    <p id="msg">Processing your details...</p>
   </div>
 
   <script>
-    // --- Extract event data for dedup
+    // --- Get user name and event ID from session or URL
     const params = new URLSearchParams(location.search);
     const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
+    const userName = sessionStorage.getItem('myle_name') || 'Dear Candidate';
+
+    // --- Show personalized message
+    document.getElementById('msg').innerHTML = `
+      Thank you <span class="name">${userName}</span> for applying at <b>MYLE Community</b> 💻<br>
+      Aapko <b>24 hours</b> ke andar call aayega 📞<br>
+      jisme complete details share ki jayengi.
+    `;
+
+    // --- Read fbc/fbp cookies
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
     const fbc = getCookie('_fbc');
     const fbp = getCookie('_fbp');
 
-    // --- Fire deduped Lead event
+    // --- Fire Lead event (dedup with CAPI)
     if (!sessionStorage.getItem('myle_lead_sent')) {
       sessionStorage.setItem('myle_lead_sent', '1');
-      fbq('track', 'Lead', { event_id: eid, fbc, fbp, value: 50, currency: 'INR' });
-      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired successfully → ${eid}`);
+      fbq('track', 'Lead', {
+        event_id: eid,
+        fbc,
+        fbp,
+        value: 50,
+        currency: 'INR'
+      });
+      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired successfully → Event ID: ${eid}`);
     }
-
-    // --- Safe Instagram Button Click
-    const instaBtn = document.getElementById('instaBtn');
-    instaBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      // Open in new tab/window (even inside Meta’s in-app browser)
-      const win = window.open('https://www.instagram.com/karanveersingh_24/', '_blank');
-      if (!win || win.closed || typeof win.closed === 'undefined') {
-        // fallback for browsers blocking window.open
-        window.location.href = 'https://www.instagram.com/karanveersingh_24/';
-      }
-    });
   </script>
 </body>
 </html>
