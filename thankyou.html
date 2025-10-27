@@ -16,11 +16,11 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    // 🔄 Auto-select pixel based on referrer
+    // 🔄 Auto Pixel Selection (primary / secondary)
     const ref = document.referrer.toLowerCase();
-    let pixelId = '1357484016013958'; // Primary (Ad Account 1)
+    let pixelId = '1357484016013958';
     if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2')) {
-      pixelId = '1720735588606972'; // Secondary (Ad Account 2)
+      pixelId = '1720735588606972';
     }
     fbq('init', pixelId);
     console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Using Pixel → ${pixelId}`);
@@ -40,7 +40,7 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      background: #0e0e14;
+      background: radial-gradient(circle at 30% 20%, #181820, #0e0e14 70%);
       color: #fff;
       font-family: system-ui, sans-serif;
       text-align: center;
@@ -53,8 +53,17 @@
       to { opacity: 1; }
     }
 
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 30px 40px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      max-width: 420px;
+      width: 90%;
+    }
+
     h1 {
-      font-size: 1.9rem;
+      font-size: 1.7rem;
       margin-bottom: 0.4em;
     }
 
@@ -65,74 +74,65 @@
       margin: 0.3em 0;
     }
 
-    a.insta-btn {
+    button.insta-btn {
       display: inline-block;
       margin-top: 1.4rem;
-      padding: 10px 24px;
+      padding: 11px 26px;
       background: linear-gradient(90deg, #f00073, #cc2366, #5851db);
       color: #fff;
       font-weight: 500;
+      border: none;
       border-radius: 40px;
-      text-decoration: none;
+      cursor: pointer;
+      font-size: 1rem;
       letter-spacing: 0.3px;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
     }
-    a.insta-btn:hover {
+
+    button.insta-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 10px rgba(240, 0, 115, 0.6);
+      opacity: 0.95;
     }
   </style>
 </head>
 <body>
-  <div>
-    <h1 id="thanksTitle">Thank You 🎉</h1>
-    <p id="leadName"></p>
+  <div class="card">
+    <h1>Thank you for applying at <strong>MYLE Community 💻</strong></h1>
     <p>Aapko <strong>24 hours ke andar call aayega 📞</strong></p>
     <p>jisme complete details share ki jayengi.</p>
 
-    <a
-      href="#"
-      id="instaLink"
-      class="insta-btn"
-      rel="noopener noreferrer nofollow"
-    >
+    <button id="instaBtn" class="insta-btn" type="button">
       🔗 Check our Instagram Profile
-    </a>
+    </button>
   </div>
 
   <script>
-    // --- Extract lead name and event ID
+    // --- Extract event data for dedup
     const params = new URLSearchParams(location.search);
     const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
-    const name = sessionStorage.getItem('myle_name') || 'there';
-    const leadName = document.getElementById('leadName');
-    leadName.innerHTML = `Thank you <strong>${name}</strong> for applying at <strong>MYLE Community 💻</strong>`;
-
-    // --- Read cookies for fbc/fbp
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
     const fbc = getCookie('_fbc');
     const fbp = getCookie('_fbp');
 
-    // --- Deduplicated Lead event
+    // --- Fire deduped Lead event
     if (!sessionStorage.getItem('myle_lead_sent')) {
       sessionStorage.setItem('myle_lead_sent', '1');
-      fbq('track', 'Lead', {
-        event_id: eid,
-        fbc,
-        fbp,
-        value: 50,
-        currency: 'INR'
-      });
-      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired → ${eid}`);
+      fbq('track', 'Lead', { event_id: eid, fbc, fbp, value: 50, currency: 'INR' });
+      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired successfully → ${eid}`);
     }
 
-    // --- Instagram Button Safe Handler
-    const insta = document.getElementById('instaLink');
-    insta.addEventListener('click', (e) => {
+    // --- Safe Instagram Button Click
+    const instaBtn = document.getElementById('instaBtn');
+    instaBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      e.stopPropagation();
-      window.open('https://www.instagram.com/karanveersingh_24/', '_blank', 'noopener,noreferrer');
-      return false;
+      e.stopImmediatePropagation();
+      // Open in new tab/window (even inside Meta’s in-app browser)
+      const win = window.open('https://www.instagram.com/karanveersingh_24/', '_blank');
+      if (!win || win.closed || typeof win.closed === 'undefined') {
+        // fallback for browsers blocking window.open
+        window.location.href = 'https://www.instagram.com/karanveersingh_24/';
+      }
     });
   </script>
 </body>
