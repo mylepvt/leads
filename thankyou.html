@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Thank You | MYLE Community</title>
 
-  <!-- ✅ Meta Pixel Loader -->
+  <!-- ✅ Meta Pixel -->
   <script>
     !function(f,b,e,v,n,t,s){
       if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -16,12 +16,11 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    // 🔄 Auto-select pixel (dual-account safe)
-    const ref = document.referrer.toLowerCase();
-    let pixelId = '1357484016013958'; // Primary
+    // 🔄 Auto Pixel Detection
+    const ref = (document.referrer || '').toLowerCase();
+    let pixelId = '1357484016013958';
     if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2'))
-      pixelId = '1720735588606972'; // Secondary
-
+      pixelId = '1720735588606972';
     fbq('init', pixelId);
     console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Pixel initialized → ${pixelId}`);
   </script>
@@ -40,53 +39,60 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      background: #0e0e14;
+      background: radial-gradient(circle at 20% 30%, #15151e, #0e0e14 70%);
       color: #fff;
-      font-family: system-ui, sans-serif;
+      font-family: "Inter", system-ui, sans-serif;
       text-align: center;
+      overflow: hidden;
     }
     h1 {
-      font-size: 1.8rem;
+      font-size: 2rem;
       margin-bottom: .5em;
-      color: #fff;
+      letter-spacing: 0.5px;
     }
     p {
       opacity: .85;
-      font-size: 1rem;
+      font-size: 1.05rem;
       line-height: 1.6;
       max-width: 90%;
     }
-    .name {
-      font-weight: 600;
+    .highlight {
       color: #00c3ff;
+      font-weight: 600;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 2rem 2.5rem;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(6px);
+      transition: transform 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
     }
   </style>
 </head>
 <body>
-  <div>
+  <div class="card">
     <h1>Thank You 🎉</h1>
-    <p id="msg">Processing your details...</p>
-  </div>
-
-  <script>
-    // --- Get user name and event ID from session or URL
-    const params = new URLSearchParams(location.search);
-    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
-    const userName = sessionStorage.getItem('myle_name') || 'Dear Candidate';
-
-    // --- Show personalized message
-    document.getElementById('msg').innerHTML = `
-      Thank you <span class="name">${userName}</span> for applying at <b>MYLE Community</b> 💻<br>
+    <p>
+      Thank you for applying at <span class="highlight">MYLE Community</span> 💻<br>
       Aapko <b>24 hours</b> ke andar call aayega 📞<br>
       jisme complete details share ki jayengi.
-    `;
+    </p>
+  </div>
 
-    // --- Read fbc/fbp cookies
+  <!-- ✅ Pixel Dedup Logic -->
+  <script>
+    const params = new URLSearchParams(location.search);
+    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
+
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
     const fbc = getCookie('_fbc');
     const fbp = getCookie('_fbp');
 
-    // --- Fire Lead event (dedup with CAPI)
     if (!sessionStorage.getItem('myle_lead_sent')) {
       sessionStorage.setItem('myle_lead_sent', '1');
       fbq('track', 'Lead', {
@@ -96,7 +102,7 @@
         value: 50,
         currency: 'INR'
       });
-      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired successfully → Event ID: ${eid}`);
+      console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired → Event ID: ${eid}`);
     }
   </script>
 </body>
