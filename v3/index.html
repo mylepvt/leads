@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Let's Work with Myle Community (v3)</title>
+
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
-
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
 
   <style>
@@ -29,7 +29,7 @@
       border: none;
       background: #0e0e14;
     }
-    /* Optional loader for better UX */
+    /* Loader */
     #loader {
       position: fixed;
       inset: 0;
@@ -43,9 +43,11 @@
     }
   </style>
 </head>
+
 <body>
   <div id="loader">Loading form...</div>
 
+  <!-- ✅ Zoho Form Embed -->
   <iframe
     id="zohoFormFrame"
     src="https://forms.mylecommunity.in/gurveer1174gm1/form/CopyLetsWorkwithMYLECommunity/formperma/ZlYN-IAQH0qp87lh1672fU_wKykKqtkWMJsEupWEWJQ"
@@ -53,5 +55,45 @@
     allowfullscreen
     onload="document.getElementById('loader').style.display='none';">
   </iframe>
+
+  <!-- 🧠 MYLE Debugger: fbclid / UTM Parameter Detector -->
+  <script>
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const keys = ['fbclid', 'fbp', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+
+    // Extract available params
+    const found = {};
+    keys.forEach(k => {
+      const v = params.get(k);
+      if (v) found[k] = v;
+    });
+
+    // Log in console
+    if (Object.keys(found).length) {
+      console.log('%c[MYLE Debug]', 'color:#06f;font-weight:bold;', 'Tracking parameters detected →', found);
+    } else {
+      console.log('%c[MYLE Debug]', 'color:#06f;', 'No fbclid/utm parameters in URL (likely opened manually, not via ad click)');
+    }
+
+    // 🔍 Optional visual badge (you can remove after testing)
+    const show = document.createElement('div');
+    show.style.position = 'fixed';
+    show.style.bottom = '8px';
+    show.style.right = '8px';
+    show.style.background = 'rgba(10,10,20,0.8)';
+    show.style.color = Object.keys(found).length ? '#0f0' : '#ffcc00';
+    show.style.fontSize = '12px';
+    show.style.padding = '4px 8px';
+    show.style.borderRadius = '6px';
+    show.style.fontFamily = 'monospace';
+    show.style.zIndex = '99999';
+    show.style.opacity = '0.9';
+    show.textContent = Object.keys(found).length
+      ? '✅ fbclid detected'
+      : '⚠️ No fbclid (manual visit)';
+    document.body.appendChild(show);
+  })();
+  </script>
 </body>
 </html>
