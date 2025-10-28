@@ -93,7 +93,7 @@
     </p>
   </div>
 
-  <!-- ✅ Pixel Dedup Logic -->
+  <!-- ✅ Pixel Dedup Logic + Anti-Refire -->
   <script>
     const params = new URLSearchParams(location.search);
     const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
@@ -102,11 +102,11 @@
     const fbc = getCookie('_fbc');
     const fbp = getCookie('_fbp');
 
-    if (!sessionStorage.getItem('myle_lead_sent')) {
-      sessionStorage.setItem('myle_lead_sent', '1');
-
-      // ✅ Delay ensures fbq is fully loaded (fixes Meta currency warning)
-      setTimeout(() => {
+    // ✅ Prevent multiple fires (persistent across reloads)
+    if (localStorage.getItem('myle_lead_fired')) {
+      console.log('%c[MYLE Pixel]', 'color:orange;', 'Lead event already fired previously — skipped.');
+    } else {
+      const fireLeadEvent = () => {
         fbq('track', 'Lead', {
           event_id: eid,
           fbc,
@@ -114,9 +114,23 @@
           value: 50.00,
           currency: 'INR'
         });
+        localStorage.setItem('myle_lead_fired', '1');
+        sessionStorage.setItem('myle_lead_sent', '1');
         console.log('%c[MYLE Pixel]', 'color:#06f;',
           `Lead event fired → Event ID: ${eid}, Currency: INR, Value: 50.00`);
-      }, 500);
+      };
+
+      // ✅ Delay ensures fbq is ready; retries if pixel still loading
+      const waitForFbq = (tries = 0) => {
+        if (typeof fbq === 'function') {
+          setTimeout(fireLeadEvent, 400);
+        } else if (tries < 10) {
+          setTimeout(() => waitForFbq(tries + 1), 300);
+        } else {
+          console.warn('[MYLE Pixel] fbq not ready after 3s — skipping fire.');
+        }
+      };
+      waitForFbq();
     }
   </script>
 </body>
