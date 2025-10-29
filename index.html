@@ -7,14 +7,15 @@
 
   <!-- ✅ Meta & Privacy -->
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
+  <meta name="facebook-domain-verification" content="YOUR_VERIFICATION_TOKEN" />
 
   <!-- ⚡ Performance -->
-  <link rel="dns-prefetch" href="https://forms.mylecommunity.in">
-  <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
-  <link rel="preconnect" href="https://www.facebook.com" crossorigin>
-  <link rel="preconnect" href="https://graph.facebook.com" crossorigin>
+  <link rel="dns-prefetch" href="https://forms.mylecommunity.in" />
+  <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+  <link rel="preconnect" href="https://www.facebook.com" crossorigin />
+  <link rel="preconnect" href="https://graph.facebook.com" crossorigin />
 
   <!-- ✅ Meta Pixel -->
   <script>
@@ -27,15 +28,16 @@
       s.parentNode.insertBefore(t,s)
     }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 
-    // --- Dual Pixel Logic with fbclid fallback ---
+    // --- Dual Pixel Logic (with fbclid + referrer) ---
     const urlParams = new URLSearchParams(location.search);
     const fbclidParam = urlParams.get('fbclid');
     const ref = (document.referrer || '').toLowerCase();
     let PIXEL_ID = '1357484016013958'; // Primary Pixel
+
     if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2') || (fbclidParam && fbclidParam.includes('172073')))
       PIXEL_ID = '1720735588606972'; // Secondary Pixel
 
-    // Preserve Pixel ID for session consistency
+    // Preserve Pixel ID for consistency
     const savedPixel = sessionStorage.getItem('myle_pixel_id');
     if (savedPixel) PIXEL_ID = savedPixel;
     else sessionStorage.setItem('myle_pixel_id', PIXEL_ID);
@@ -46,7 +48,7 @@
 
   <noscript>
     <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
+      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1" />
   </noscript>
 
   <!-- ✅ Styling -->
@@ -67,19 +69,15 @@
       background: #0e0e14;
     }
     #loader {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0e0e14;
-      color: #fff;
-      font-size: 1.1rem;
-      letter-spacing: 0.5px;
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: #0e0e14; color: #fff;
+      font-size: 1.1rem; letter-spacing: 0.5px;
       transition: opacity 0.3s ease;
     }
   </style>
 </head>
+
 <body>
   <div id="loader">Loading form...</div>
 
@@ -94,10 +92,10 @@
 
   <script>
     const THANK_URL = '/thankyou.html';
-    const FORM_BASE = 'https://forms.mylecommunity.in/myle/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8'; // ✅ UPDATED FORM LINK
+    const FORM_BASE = 'https://forms.mylecommunity.in/myle/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
 
-    // --- Shared Event ID for dedup ---
-    const eid = 'MYLE-' + Date.now().toString(36);
+    // --- Unique Event ID ---
+    const eid = 'MYLE-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
     sessionStorage.setItem('myle_lead_eid', eid);
 
     // --- Cookie helpers ---
@@ -106,7 +104,7 @@
     };
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
 
-    // --- fbclid, fbc, fbp setup ---
+    // --- fbclid / fbc / fbp setup ---
     const params = new URLSearchParams(location.search);
     const fbclid = params.get('fbclid') || getCookie('fbclid');
     if (params.get('fbclid')) setCookie('fbclid', params.get('fbclid'));
@@ -120,32 +118,31 @@
       setCookie('_fbp', fbp);
     }
 
-    // ✅ Critical Fix: Always generate valid _fbc if fbclid present
     if (params.get('fbclid')) {
       const fbcValue = `fb.1.${ts}.${params.get('fbclid')}`;
       setCookie('_fbc', fbcValue);
       fbc = fbcValue;
     }
 
-    // --- Fire PageView (once per session) ---
+    // --- Fire PageView ---
     if (!sessionStorage.getItem('myle_pageview_fired')) {
-      fbq('track', 'PageView', { eventID: eid, fbc, fbp });
+      fbq('track', 'PageView', { event_id: eid, fbc, fbp });
       sessionStorage.setItem('myle_pageview_fired', '1');
     }
 
-    // --- Build Zoho Form URL (with dedup + tracking) ---
+    // --- Build Form URL ---
     let formURL = `${FORM_BASE}?SingleLine4=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}&pixel_id=${encodeURIComponent(PIXEL_ID)}&event_id=${encodeURIComponent(eid)}&utm_source=facebook`;
     if (fbclid) formURL += `&fbclid=${encodeURIComponent(fbclid)}`;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // --- Loader fadeout (max 10s safety) ---
+    // --- Loader fadeout ---
     const loader = document.getElementById('loader');
     const fadeOut = () => {
       loader.style.opacity = '0';
       setTimeout(() => loader.remove(), 400);
     };
     document.getElementById('zohoFormFrame').onload = fadeOut;
-    setTimeout(fadeOut, 10000); // Fallback
+    setTimeout(fadeOut, 10000);
 
     // --- Redirect Logic ---
     let redirected = false;
@@ -157,12 +154,12 @@
       t.searchParams.set('e', eid);
       if (fbclid) t.searchParams.set('fbclid', fbclid);
       setTimeout(() => {
-        sessionStorage.removeItem('myle_lead_eid'); // ✅ Prevent re-fire
+        sessionStorage.removeItem('myle_lead_eid');
         location.href = t.toString();
       }, 300);
     }
 
-    // --- Detect Zoho Submission ---
+    // --- Zoho submission listener ---
     window.addEventListener('message', e => {
       if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) {
         try {
@@ -174,7 +171,7 @@
       }
     });
 
-    // --- Backup Failsafe Watcher ---
+    // --- Backup Failsafe ---
     const iframe = document.getElementById('zohoFormFrame');
     const watcher = setInterval(() => {
       if (redirected) { clearInterval(watcher); return; }
