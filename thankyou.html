@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Thank You | MYLE Community</title>
 
   <!-- ✅ Meta Pixel -->
@@ -26,7 +26,7 @@
 
   <noscript>
     <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1"/>
+      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1" />
   </noscript>
 
   <!-- ✅ Styling -->
@@ -44,7 +44,6 @@
       text-align: center;
       overflow: hidden;
     }
-
     .card {
       opacity: 0;
       transform: translateY(25px);
@@ -56,26 +55,22 @@
       backdrop-filter: blur(6px);
       animation: fadeUp 1.1s ease-out forwards;
     }
-
     @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(25px); }
-      100% { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(25px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
     h1 {
       font-size: 2rem;
-      margin-bottom: .5em;
+      margin-bottom: 0.5em;
       letter-spacing: 0.4px;
     }
-
     p {
-      opacity: .85;
+      opacity: 0.85;
       font-size: 1.05rem;
       line-height: 1.6;
       max-width: 90%;
       margin: 0 auto;
     }
-
     .highlight {
       color: #00c3ff;
       font-weight: 600;
@@ -93,45 +88,43 @@
     </p>
   </div>
 
-  <!-- ✅ Pixel Dedup Logic + Anti-Refire -->
+  <!-- ✅ Pixel Dedup Logic -->
   <script>
     const params = new URLSearchParams(location.search);
-    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Math.floor(Date.now()/1000));
-
+    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Date.now().toString(36));
     const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
     const fbc = getCookie('_fbc');
     const fbp = getCookie('_fbp');
 
-    // ✅ Prevent multiple fires (persistent across reloads)
     if (localStorage.getItem('myle_lead_fired')) {
-      console.log('%c[MYLE Pixel]', 'color:orange;', 'Lead event already fired previously — skipped.');
+      console.log('%c[MYLE Pixel]', 'color:orange;', 'Lead already fired previously — skipped.');
     } else {
       const fireLeadEvent = () => {
+        fbq('track', 'PageView', { event_id: eid, fbc, fbp });
         fbq('track', 'Lead', {
           event_id: eid,
-          fbc,
-          fbp,
+          external_id: eid,
+          fbc, fbp,
           value: 50.00,
           currency: 'INR'
         });
         localStorage.setItem('myle_lead_fired', '1');
         sessionStorage.setItem('myle_lead_sent', '1');
-        console.log('%c[MYLE Pixel]', 'color:#06f;',
-          `Lead event fired → Event ID: ${eid}, Currency: INR, Value: 50.00`);
+        console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired → ${eid}`);
       };
 
-      // ✅ Delay ensures fbq is ready; retries if pixel still loading
       const waitForFbq = (tries = 0) => {
-        if (typeof fbq === 'function') {
-          setTimeout(fireLeadEvent, 400);
-        } else if (tries < 10) {
-          setTimeout(() => waitForFbq(tries + 1), 300);
-        } else {
-          console.warn('[MYLE Pixel] fbq not ready after 3s — skipping fire.');
-        }
+        if (typeof fbq === 'function') setTimeout(fireLeadEvent, 300);
+        else if (tries < 10) setTimeout(() => waitForFbq(tries + 1), 300);
+        else console.warn('[MYLE Pixel] fbq not ready after 3s — skipping fire.');
       };
       waitForFbq();
     }
+
+    // 🕒 Reset after 10 minutes to allow new submissions
+    window.addEventListener('beforeunload', () => {
+      setTimeout(() => localStorage.removeItem('myle_lead_fired'), 1000 * 60 * 10);
+    });
   </script>
 </body>
 </html>
