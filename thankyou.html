@@ -5,76 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Thank You | MYLE Community</title>
 
-  <!-- ✅ Meta Pixel -->
+  <!-- Meta Pixel (single pixel) -->
   <script>
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)n._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)
-    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    !(function(f,b,e,v,n,t,s){
+      if(f.fbq) return; n=f.fbq=function(){ n.callMethod ?
+        n.callMethod.apply(n,arguments) : n.queue.push(arguments) };
+      if(!f._fbq) f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0';
+      n.queue=[]; t=b.createElement(e); t.async=!0; t.src=v;
+      s=b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t,s);
+    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
-    const ref = (document.referrer || '').toLowerCase();
-    let pixelId = '1357484016013958';
-    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2'))
-      pixelId = '1720735588606972';
-    fbq('init', pixelId);
-    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Pixel initialized → ${pixelId}`);
+    const PIXEL_ID = '1357484016013958';
+    fbq('init', PIXEL_ID);
+    console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Pixel initialized → ${PIXEL_ID}`);
   </script>
-
   <noscript>
     <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1" />
+         src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1" />
   </noscript>
 
-  <!-- ✅ Styling -->
   <style>
     :root { color-scheme: dark; }
     body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin: 0; height: 100vh; display:flex; align-items:center; justify-content:center;
       background: radial-gradient(circle at 20% 30%, #15151e, #0e0e14 70%);
-      font-family: "Inter", system-ui, sans-serif;
-      color: #fff;
-      text-align: center;
-      overflow: hidden;
+      font-family: "Inter", system-ui, sans-serif; color:#fff; text-align:center; overflow:hidden;
     }
     .card {
-      opacity: 0;
-      transform: translateY(25px);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 2.2rem 2.5rem;
-      box-shadow: 0 0 25px rgba(0,0,0,0.25);
-      backdrop-filter: blur(6px);
-      animation: fadeUp 1.1s ease-out forwards;
+      opacity: 0; transform: translateY(25px);
+      background: rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 2.2rem 2.5rem; box-shadow: 0 0 25px rgba(0,0,0,0.25);
+      backdrop-filter: blur(6px); animation: fadeUp 1.1s ease-out forwards;
     }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(25px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 0.5em;
-      letter-spacing: 0.4px;
-    }
-    p {
-      opacity: 0.85;
-      font-size: 1.05rem;
-      line-height: 1.6;
-      max-width: 90%;
-      margin: 0 auto;
-    }
-    .highlight {
-      color: #00c3ff;
-      font-weight: 600;
-    }
+    @keyframes fadeUp { from {opacity:0; transform:translateY(25px)} to {opacity:1; transform:translateY(0)} }
+    h1 { font-size:2rem; margin-bottom:.5em; letter-spacing:.4px; }
+    p { opacity:.85; font-size:1.05rem; line-height:1.6; max-width:90%; margin:0 auto; }
+    .highlight { color:#00c3ff; font-weight:600; }
   </style>
 </head>
 
@@ -82,49 +48,39 @@
   <div class="card">
     <h1>Thank You 🎉</h1>
     <p>
-      Thank you for applying at <span class="highlight">MYLE Community</span> 💻<br>
-      Aapko <b>24 hours</b> ke andar call aayega 📞<br>
+      Thank you for applying at <span class="highlight">MYLE Community</span> 💻<br />
+      Aapko <b>24 hours</b> ke andar call aayega 📞<br />
       jisme complete details share ki jayengi.
     </p>
   </div>
 
-  <!-- ✅ Pixel Dedup Logic -->
   <script>
+    // Recover event_id
     const params = new URLSearchParams(location.search);
     const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Date.now().toString(36));
-    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
-    const fbc = getCookie('_fbc');
-    const fbp = getCookie('_fbp');
 
-    if (localStorage.getItem('myle_lead_fired')) {
-      console.log('%c[MYLE Pixel]', 'color:orange;', 'Lead already fired previously — skipped.');
+    // Dedup & anti-refire (once per eid)
+    const firedKey = 'myle_lead_fired_' + eid;
+    if (localStorage.getItem(firedKey)) {
+      console.log('%c[MYLE Pixel]', 'color:orange;', 'Lead already fired for this eid — skipped.');
     } else {
-      const fireLeadEvent = () => {
-        fbq('track', 'PageView', { event_id: eid, fbc, fbp });
-        fbq('track', 'Lead', {
-          event_id: eid,
-          external_id: eid,
-          fbc, fbp,
-          value: 50.00,
-          currency: 'INR'
-        });
-        localStorage.setItem('myle_lead_fired', '1');
+      // Fire ONLY Lead from browser (no value/currency to avoid diagnostics)
+      const fireLead = () => {
+        fbq('track', 'Lead', { event_id: eid });
+        localStorage.setItem(firedKey, '1');
         sessionStorage.setItem('myle_lead_sent', '1');
         console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired → ${eid}`);
       };
-
       const waitForFbq = (tries = 0) => {
-        if (typeof fbq === 'function') setTimeout(fireLeadEvent, 300);
+        if (typeof fbq === 'function') setTimeout(fireLead, 300);
         else if (tries < 10) setTimeout(() => waitForFbq(tries + 1), 300);
         else console.warn('[MYLE Pixel] fbq not ready after 3s — skipping fire.');
       };
       waitForFbq();
     }
 
-    // 🕒 Reset after 10 minutes to allow new submissions
-    window.addEventListener('beforeunload', () => {
-      setTimeout(() => localStorage.removeItem('myle_lead_fired'), 1000 * 60 * 10);
-    });
+    // Optional: expire this specific eid key after 10 minutes
+    setTimeout(() => localStorage.removeItem('myle_lead_fired_' + eid), 10 * 60 * 1000);
   </script>
 </body>
 </html>
