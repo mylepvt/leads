@@ -5,83 +5,56 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover" />
   <title>Let's Work with MYLE Community 🚀</title>
 
-  <!-- ✅ Meta & Privacy -->
+  <!-- Meta & Privacy -->
   <link rel="icon" type="image/png" href="https://i.ibb.co/27S5hrzd/favicon.png" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Permissions-Policy" content="interest-cohort=()" />
-  <meta name="facebook-domain-verification" content="YOUR_VERIFICATION_TOKEN" />
+  <!-- If you have the real token, keep it; otherwise delete the next line -->
+  <!-- <meta name="facebook-domain-verification" content="PUT_REAL_TOKEN_HERE" /> -->
 
-  <!-- ⚡ Performance -->
+  <!-- Performance -->
   <link rel="dns-prefetch" href="https://forms.mylecommunity.in" />
   <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
   <link rel="preconnect" href="https://www.facebook.com" crossorigin />
   <link rel="preconnect" href="https://graph.facebook.com" crossorigin />
 
-  <!-- ✅ Meta Pixel -->
+  <!-- Meta Pixel (single pixel setup) -->
   <script>
-    !function(f,b,e,v,n,t,s){
-      if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)n._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)
-    }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    !(function(f,b,e,v,n,t,s){
+      if(f.fbq) return; n=f.fbq=function(){ n.callMethod ?
+        n.callMethod.apply(n,arguments) : n.queue.push(arguments) };
+      if(!f._fbq) f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0';
+      n.queue=[]; t=b.createElement(e); t.async=!0; t.src=v;
+      s=b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t,s);
+    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
-    // --- Dual Pixel Logic (with fbclid + referrer) ---
-    const urlParams = new URLSearchParams(location.search);
-    const fbclidParam = urlParams.get('fbclid');
-    const ref = (document.referrer || '').toLowerCase();
-    let PIXEL_ID = '1357484016013958'; // Primary Pixel
-
-    if (ref.includes('myleads') || ref.includes('copy') || ref.includes('lead2') || (fbclidParam && fbclidParam.includes('172073')))
-      PIXEL_ID = '1720735588606972'; // Secondary Pixel
-
-    // Preserve Pixel ID for consistency
-    const savedPixel = sessionStorage.getItem('myle_pixel_id');
-    if (savedPixel) PIXEL_ID = savedPixel;
-    else sessionStorage.setItem('myle_pixel_id', PIXEL_ID);
-
+    const PIXEL_ID = '1357484016013958'; // single pixel
     fbq('init', PIXEL_ID);
-    console.log('%c[MYLE Index]', 'color:#06f;font-weight:bold;', `Pixel Initialized → ${PIXEL_ID}`);
+    console.log('%c[MYLE Index]', 'color:#06f;font-weight:bold;', `Pixel initialized → ${PIXEL_ID}`);
   </script>
-
   <noscript>
     <img height="1" width="1" style="display:none"
-      src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1" />
+         src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1" />
   </noscript>
 
-  <!-- ✅ Styling -->
   <style>
     :root { color-scheme: dark; }
     html, body {
-      margin: 0; padding: 0;
-      width: 100%; height: 100%;
-      background: #0e0e14;
-      overflow: hidden;
-      font-family: system-ui, sans-serif;
-      overscroll-behavior: none;
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      background: #0e0e14; overflow: hidden;
+      font-family: system-ui, sans-serif; overscroll-behavior: none;
     }
-    iframe {
-      position: fixed; inset: 0;
-      width: 100%; height: 100vh;
-      border: none;
-      background: #0e0e14;
-    }
+    iframe { position: fixed; inset: 0; width: 100%; height: 100vh; border: 0; background:#0e0e14; }
     #loader {
-      position: fixed; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: #0e0e14; color: #fff;
-      font-size: 1.1rem; letter-spacing: 0.5px;
-      transition: opacity 0.3s ease;
+      position: fixed; inset: 0; display:flex; align-items:center; justify-content:center;
+      background:#0e0e14; color:#fff; font-size:1.1rem; letter-spacing:.5px; transition: opacity .3s ease;
     }
   </style>
 </head>
-
 <body>
   <div id="loader">Loading form...</div>
 
-  <!-- ✅ Zoho Embed -->
+  <!-- Zoho Embed -->
   <iframe
     id="zohoFormFrame"
     title="Let's Work with MYLE Community 🚀"
@@ -94,57 +67,49 @@
     const THANK_URL = '/thankyou.html';
     const FORM_BASE = 'https://forms.mylecommunity.in/myle/form/LetsWorkwithMyleCommunity/formperma/iIbYvhTGIeBarrSAlYsC4GJzUeaqa8rwMJZ3acAJ4L8';
 
-    // --- Unique Event ID ---
-    const eid = 'MYLE-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 6);
+    // Event ID shared across browser + CAPI (passed into Zoho → Worker)
+    const eid = 'MYLE-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,6);
     sessionStorage.setItem('myle_lead_eid', eid);
 
-    // --- Cookie helpers ---
+    // Cookies
     const setCookie = (n, v) => {
       document.cookie = `${n}=${v}; path=/; domain=.mylecommunity.in; SameSite=None; Secure; max-age=${60*60*24*365}`;
     };
-    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
+    const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )'+n+'=([^;]*)'))||[])[1] || '';
 
-    // --- fbclid / fbc / fbp setup ---
+    // fbclid → _fbc / _fbp
     const params = new URLSearchParams(location.search);
     const fbclid = params.get('fbclid') || getCookie('fbclid');
     if (params.get('fbclid')) setCookie('fbclid', params.get('fbclid'));
 
-    const ts = Math.floor(Date.now() / 1000);
+    const ts = Math.floor(Date.now()/1000);
     let fbc = getCookie('_fbc');
     let fbp = getCookie('_fbp');
+    if (!fbp) { fbp = `fb.1.${ts}.${Math.random().toString(36).slice(2,12)}`; setCookie('_fbp', fbp); }
+    if (params.get('fbclid')) { fbc = `fb.1.${ts}.${params.get('fbclid')}`; setCookie('_fbc', fbc); }
 
-    if (!fbp) {
-      fbp = `fb.1.${ts}.${Math.random().toString(36).substring(2, 12)}`;
-      setCookie('_fbp', fbp);
-    }
-
-    if (params.get('fbclid')) {
-      const fbcValue = `fb.1.${ts}.${params.get('fbclid')}`;
-      setCookie('_fbc', fbcValue);
-      fbc = fbcValue;
-    }
-
-    // --- Fire PageView ---
+    // Clean PageView (no event_id / fbc / fbp payload here)
     if (!sessionStorage.getItem('myle_pageview_fired')) {
-      fbq('track', 'PageView', { event_id: eid, fbc, fbp });
+      fbq('track', 'PageView');
       sessionStorage.setItem('myle_pageview_fired', '1');
     }
 
-    // --- Build Form URL ---
-    let formURL = `${FORM_BASE}?SingleLine4=${eid}&fbc=${encodeURIComponent(fbc)}&fbp=${encodeURIComponent(fbp)}&pixel_id=${encodeURIComponent(PIXEL_ID)}&event_id=${encodeURIComponent(eid)}&utm_source=facebook`;
+    // Build Zoho URL with dedup + tracking
+    let formURL =
+      `${FORM_BASE}?SingleLine4=${encodeURIComponent(eid)}&event_id=${encodeURIComponent(eid)}&pixel_id=${encodeURIComponent(PIXEL_ID)}`;
+    if (fbc)    formURL += `&fbc=${encodeURIComponent(fbc)}`;
+    if (fbp)    formURL += `&fbp=${encodeURIComponent(fbp)}`;
     if (fbclid) formURL += `&fbclid=${encodeURIComponent(fbclid)}`;
+    formURL += `&utm_source=facebook`;
     document.getElementById('zohoFormFrame').src = formURL;
 
-    // --- Loader fadeout ---
+    // Loader fadeout
     const loader = document.getElementById('loader');
-    const fadeOut = () => {
-      loader.style.opacity = '0';
-      setTimeout(() => loader.remove(), 400);
-    };
+    const fadeOut = () => { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); };
     document.getElementById('zohoFormFrame').onload = fadeOut;
     setTimeout(fadeOut, 10000);
 
-    // --- Redirect Logic ---
+    // Redirect to thank-you after submit
     let redirected = false;
     function goThankYou(name) {
       if (redirected) return;
@@ -154,30 +119,30 @@
       t.searchParams.set('e', eid);
       if (fbclid) t.searchParams.set('fbclid', fbclid);
       setTimeout(() => {
-        sessionStorage.removeItem('myle_lead_eid');
+        sessionStorage.removeItem('myle_lead_eid'); // anti-refire safety
         location.href = t.toString();
       }, 300);
     }
 
-    // --- Zoho submission listener ---
-    window.addEventListener('message', e => {
+    // Listen for Zoho postMessage
+    window.addEventListener('message', (e) => {
       if (typeof e.data === 'string' && e.data.toLowerCase().includes('successfully submitted')) {
         try {
-          const iframe = document.getElementById('zohoFormFrame').contentWindow.document;
-          const nameField = iframe.querySelector('input[type="text"], input[name*="name" i]');
+          const d = document.getElementById('zohoFormFrame').contentWindow.document;
+          const nameField = d.querySelector('input[type="text"], input[name*="name" i]');
           if (nameField && nameField.value) sessionStorage.setItem('myle_name', nameField.value);
         } catch {}
         goThankYou(sessionStorage.getItem('myle_name') || '');
       }
     });
 
-    // --- Backup Failsafe ---
+    // Failsafe watcher
     const iframe = document.getElementById('zohoFormFrame');
     const watcher = setInterval(() => {
       if (redirected) { clearInterval(watcher); return; }
       try {
         const doc = iframe.contentDocument || iframe.contentWindow.document;
-        const text = (doc.body && doc.body.innerText || '').toLowerCase();
+        const text = (doc.body?.innerText || '').toLowerCase();
         if (text.includes('thank') && text.includes('submitted')) {
           const nameField = doc.querySelector('input[type="text"], input[name*="name" i]');
           if (nameField && nameField.value) sessionStorage.setItem('myle_name', nameField.value);
