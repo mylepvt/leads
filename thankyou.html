@@ -59,24 +59,35 @@
   <!-- ✅ Pixel Event Logic (Dedup + Diagnostics Fixed) -->
   <script>
     (function() {
+      // --- Recovery patch for event_id sync ---
+      if (!sessionStorage.getItem('myle_lead_eid')) {
+        const urlParams = new URLSearchParams(location.search);
+        const eidFromURL = urlParams.get('e');
+        if (eidFromURL) {
+          sessionStorage.setItem('myle_lead_eid', eidFromURL);
+          console.log('%c[MYLE Pixel]', 'color:#0f0;', `Recovered event_id → ${eidFromURL}`);
+        }
+      }
+
+      // --- Event ID + Setup ---
       const params = new URLSearchParams(location.search);
       const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Date.now().toString(36));
       const firedKey = 'myle_lead_fired_' + eid;
 
-      // Helpers
+      // --- Helpers ---
       const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
       const fbc = getCookie('_fbc');
       const fbp = getCookie('_fbp');
-      const creationTime = Math.floor(Date.now() / 1000); // ✅ Meta expects UNIX seconds
-      const randomValue = (40 + Math.random() * 30).toFixed(2); // ✅ avoid identical value warnings
+      const creationTime = Math.floor(Date.now() / 1000); // ✅ UNIX timestamp
+      const randomValue = (40 + Math.random() * 30).toFixed(2); // ✅ Avoid identical-value warnings
 
-      // Prevent duplicate firing
+      // --- Prevent duplicate firing ---
       if (localStorage.getItem(firedKey)) {
         console.log('%c[MYLE Pixel]', 'color:orange;', `Duplicate Lead skipped (eid: ${eid})`);
         return;
       }
 
-      // Fire Lead event (with diagnostics fixes)
+      // --- Fire Lead event ---
       const fireLead = () => {
         try {
           fbq('track', 'PageView', { event_id: eid, fbc, fbp });
@@ -97,7 +108,7 @@
         }
       };
 
-      // Wait until fbq is ready
+      // --- Wait until fbq is ready ---
       const waitForFbq = (tries = 0) => {
         if (typeof fbq === 'function') return setTimeout(fireLead, 300);
         if (tries < 10) return setTimeout(() => waitForFbq(tries + 1), 300);
@@ -105,7 +116,7 @@
       };
       waitForFbq();
 
-      // Expire lead lock after 10 min
+      // --- Expire lead lock after 10 min ---
       setTimeout(() => localStorage.removeItem(firedKey), 10 * 60 * 1000);
     })();
   </script>
