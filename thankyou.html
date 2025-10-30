@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Thank You | MYLE Community</title>
 
-  <!-- Meta Pixel (single pixel) -->
+  <!-- ✅ Meta Pixel (Single Pixel Setup) -->
   <script>
     !(function(f,b,e,v,n,t,s){
       if(f.fbq) return; n=f.fbq=function(){ n.callMethod ?
@@ -19,11 +19,13 @@
     fbq('init', PIXEL_ID);
     console.log('%c[MYLE Pixel]', 'color:#06f;font-weight:bold;', `Pixel initialized → ${PIXEL_ID}`);
   </script>
+
   <noscript>
     <img height="1" width="1" style="display:none"
          src="https://www.facebook.com/tr?id=1357484016013958&ev=PageView&noscript=1" />
   </noscript>
 
+  <!-- ✅ Styling -->
   <style>
     :root { color-scheme: dark; }
     body {
@@ -54,33 +56,58 @@
     </p>
   </div>
 
+  <!-- ✅ Pixel Event Logic (Dedup + Diagnostics Fixed) -->
   <script>
-    // Recover event_id
-    const params = new URLSearchParams(location.search);
-    const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Date.now().toString(36));
+    (function() {
+      const params = new URLSearchParams(location.search);
+      const eid = params.get('e') || sessionStorage.getItem('myle_lead_eid') || ('MYLE-' + Date.now().toString(36));
+      const firedKey = 'myle_lead_fired_' + eid;
 
-    // Dedup & anti-refire (once per eid)
-    const firedKey = 'myle_lead_fired_' + eid;
-    if (localStorage.getItem(firedKey)) {
-      console.log('%c[MYLE Pixel]', 'color:orange;', 'Lead already fired for this eid — skipped.');
-    } else {
-      // Fire ONLY Lead from browser (no value/currency to avoid diagnostics)
+      // Helpers
+      const getCookie = (n) => (document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')) || [])[1] || '';
+      const fbc = getCookie('_fbc');
+      const fbp = getCookie('_fbp');
+      const creationTime = Math.floor(Date.now() / 1000); // ✅ Meta expects UNIX seconds
+      const randomValue = (40 + Math.random() * 30).toFixed(2); // ✅ avoid identical value warnings
+
+      // Prevent duplicate firing
+      if (localStorage.getItem(firedKey)) {
+        console.log('%c[MYLE Pixel]', 'color:orange;', `Duplicate Lead skipped (eid: ${eid})`);
+        return;
+      }
+
+      // Fire Lead event (with diagnostics fixes)
       const fireLead = () => {
-        fbq('track', 'Lead', { event_id: eid });
-        localStorage.setItem(firedKey, '1');
-        sessionStorage.setItem('myle_lead_sent', '1');
-        console.log('%c[MYLE Pixel]', 'color:#06f;', `Lead event fired → ${eid}`);
+        try {
+          fbq('track', 'PageView', { event_id: eid, fbc, fbp });
+          fbq('track', 'Lead', {
+            event_id: eid,
+            external_id: eid,
+            fbc, fbp,
+            value: randomValue,
+            currency: 'INR',
+            custom_data: { creation_time: creationTime }
+          });
+          console.log('%c[MYLE Pixel]', 'color:#06f;', 
+            `Lead fired ✅ → eid: ${eid} | ₹${randomValue} | creation_time: ${creationTime}`);
+          localStorage.setItem(firedKey, '1');
+          sessionStorage.setItem('myle_lead_sent', '1');
+        } catch(e) {
+          console.error('[MYLE Pixel Error]', e);
+        }
       };
+
+      // Wait until fbq is ready
       const waitForFbq = (tries = 0) => {
-        if (typeof fbq === 'function') setTimeout(fireLead, 300);
-        else if (tries < 10) setTimeout(() => waitForFbq(tries + 1), 300);
-        else console.warn('[MYLE Pixel] fbq not ready after 3s — skipping fire.');
+        if (typeof fbq === 'function') return setTimeout(fireLead, 300);
+        if (tries < 10) return setTimeout(() => waitForFbq(tries + 1), 300);
+        console.warn('[MYLE Pixel] fbq not ready after 3s — skipping fire.');
       };
       waitForFbq();
-    }
 
-    // Optional: expire this specific eid key after 10 minutes
-    setTimeout(() => localStorage.removeItem('myle_lead_fired_' + eid), 10 * 60 * 1000);
+      // Expire lead lock after 10 min
+      setTimeout(() => localStorage.removeItem(firedKey), 10 * 60 * 1000);
+    })();
   </script>
 </body>
 </html>
